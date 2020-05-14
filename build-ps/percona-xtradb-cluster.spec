@@ -1099,19 +1099,13 @@ fi
   sleep 5
 fi
 
-<<<<<<< HEAD:build-ps/percona-xtradb-cluster.spec
-echo "Percona XtraDB Cluster is distributed with several useful UDFs from Percona Toolkit."
-||||||| merged common ancestors
-echo "Percona Server is distributed with several useful UDF (User Defined Function) from Percona Toolkit."
-=======
 if [ ! -d %{_datadir}/mysql ]; then
     pushd %{_datadir}
-    ln -s percona-server mysql
+    ln -s percona-xtradb-cluster mysql
     popd
 fi
 
-echo "Percona Server is distributed with several useful UDF (User Defined Function) from Percona Toolkit."
->>>>>>> Percona-Server-5.6.48-88.0:build-ps/percona-server.spec
+echo "Percona XtraDB Cluster is distributed with several useful UDF (User Defined Function) from Percona Toolkit."
 echo "Run the following commands to create these functions:"
 echo "mysql -e \"CREATE FUNCTION fnv1a_64 RETURNS INTEGER SONAME 'libfnv1a_udf.so'\""
 echo "mysql -e \"CREATE FUNCTION fnv_64 RETURNS INTEGER SONAME 'libfnv_udf.so'\""
