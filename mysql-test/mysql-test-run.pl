@@ -335,10 +335,7 @@ our $opt_quiet                     = $ENV{'MTR_QUIET'} || 0;
 our $opt_repeat                    = 1;
 our $opt_report_times              = 0;
 our $opt_resfile                   = $ENV{'MTR_RESULT_FILE'} || 0;
-#---- wsrep
-our $opt_test_progress             = 0;
-#our $opt_test_progress             = 1;
-#---- wsrep
+our $opt_test_progress             = 1;
 our $opt_sanitize                  = 0;
 our $opt_shutdown_timeout          = $ENV{MTR_SHUTDOWN_TIMEOUT} || 20; # seconds
 our $opt_start_timeout             = $ENV{MTR_START_TIMEOUT} || 240;   # seconds
