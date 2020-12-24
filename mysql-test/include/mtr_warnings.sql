@@ -355,6 +355,10 @@ INSERT INTO global_suppressions VALUES
  /* MySQL supression needed by Galera */
  ("Slave I/O.*: Get master clock failed with error:.*"),
 
+ /*
+   Warnings/errors seen while using group replication with Percona XtraDB Cluster
+ */
+ ("Using group replication with Percona XtraDB Cluster is only supported for migration"),
 
 -- this is not from galera but from PS/MySQL but upstream doesn't need it as the
 -- is warning message and warning messages are not printed during mtr.
