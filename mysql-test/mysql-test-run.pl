@@ -774,7 +774,7 @@ sub main {
   }
 
   if ($group_replication) {
-    $ports_per_thread = $ports_per_thread + 10;
+    $ports_per_thread = $ports_per_thread + 40;
   }
 
   if ($secondary_engine_support) {
@@ -6941,7 +6941,32 @@ sub start_servers($) {
       # enough for allocating extra Group replication ports.
       $ENV{$xcom_server} = -1;
     } else {
-      my $xcom_port = $baseport + 19 + $server_id;
+      # For PXC's MTR
+      #
+      # Server-1
+      # --------
+      # Port X   - Connection handing
+      # Port X+1 - Galera
+      # Port X+2 - IST
+      # Port X+3 - SST
+      # Port X+4 - Group Replication
+      # Port X+5 - Admin Port
+      #
+      # Server-2
+      # --------
+      # Port X+6 - Connection handing
+      # ..
+      # Port X+10 - Group Replication
+      # Port X+11 - Admin Port
+      #
+      # This follows an arithmetic progression with difference 6 and the final
+      # equation for calculating the group replication ports becomes:
+      #
+      # SERVER-N
+      # --------
+      # GR_PORT = BASEPORT + 6 * SERVER_ID - 2
+
+      my $xcom_port= $baseport + 6 * $server_id - 2;
       $ENV{$xcom_server} = $xcom_port;
     }
 
