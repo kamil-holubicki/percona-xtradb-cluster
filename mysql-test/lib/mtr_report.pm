@@ -907,7 +907,8 @@ sub mtr_error (@) {
   if (IS_WINDOWS) {
     POSIX::_exit(1);
   } else {
-    exit(1);
+    print STDERR "Fatal error (but we try to continue).\n"
+#    exit(1);
   }
 }
 

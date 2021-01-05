@@ -4405,9 +4405,11 @@ sub mysql_install_db {
                                  verbose => $opt_verbose,);
 
   if ($res != 0) {
-    mtr_error("Error executing mysqld --initialize\n" .
+    # If bootstrap fails, do not terminate mtr script, just report warning.
+    mtr_warning("Error executing mysqld --initialize\n" .
               "Could not install system database from $bootstrap_sql_file\n" .
               "see $path_bootstrap_log for errors");
+    return 1;
   }
 
   # Remove the auto.cnf so that a new auto.cnf is generated for master
