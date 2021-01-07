@@ -190,9 +190,16 @@ BEGIN
   SHOW STATUS LIKE 'wsrep_open%';
 
 -- drop the sst user, as it's a PXC internal
--- check testcase runs on a separate session, 
+-- check testcase runs on a separate session,
 -- but is affected by the testcase's autocommit setting
-SET autocommit = 1; 
+-- As this SP is called twice - before and after the test we don't want to
+-- modify 'autocommit' here, as the test might have requested it to be 'off' in
+-- opt file. Setting it to 1 and then restoring is not good as well, because it
+-- will affect variable source visible in PS (tests like
+-- perfschema.variables_info_autocommit rely on this value).
+-- Instead we will just commit here. If in autocommit=1 already, it will no do
+-- any harm, but if autocommit=0 it will cause explicit commit.
+COMMIT;
 SET SESSION sql_log_bin = OFF;
 DROP USER IF EXISTS 'mysql.pxc.sst.user'@localhost;
 SET SESSION sql_log_bin = ON;
