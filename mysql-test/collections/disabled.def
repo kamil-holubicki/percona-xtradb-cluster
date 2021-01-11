@@ -37,6 +37,7 @@ innodb.innodb_bug14676111                         : BUG#18200831 The test has ne
 innodb.log_first_rec_group                        : Bug#29692047 Disable for now until we can find a better way to test this.
 innodb.fts_exec_interrupt                         : Bug#28534199 The test is unstable and should be rewritten
 innodb.slow_shutdown                              : Bug#31763837 mtr hits this debug assert post test run cleanup
+innodb.innodb_32k                                 : BUG#0 PXC requires 16k InnoDB page size
 innodb.innodb_64k                                 : BUG#0 PXC requires 16k InnoDB page size
 innodb.create_tablespace_4k                       : BUG#0 PXC requires 16k InnoDB page size
 innodb.create_tablespace_64k                      : BUG#0 PXC requires 16k InnoDB page size
@@ -44,6 +45,8 @@ innodb.import_export_4k                           : BUG#0 PXC requires 16k InnoD
 innodb.create_tablespace_8k                       : BUG#0 PXC requires 16k InnoDB page size
 innodb.create_tablespace_32k                      : BUG#0 PXC requires 16k InnoDB page size
 innodb.xdes_fseg_frag                             : BUG#0 PXC requires 16k InnoDB page size
+innodb.innodb_page_size_func                      : BUG#0 PXC requires 16k InnoDB page size
+innodb.innodb_pagesize_max_recordsize             : BUG#0 PXC requires 16k InnoDB page size
 
 # innodb_fts suite test
 innodb_fts.sync_block : BUG#2232 percona https://jira.percona.com/browse/PS-2232
@@ -327,7 +330,9 @@ encryption.innodb_encryption_aborted_rotation_page_compressed           : BUG#0 
 encryption.innodb_encryption_aborted_rotation_row_compressed            : BUG#0 PXC does not support KEYRING and ONLINE_TO_KEYRING encyption methods
 encryption.validation                                                   : BUG#0 PXC does not support KEYRING and ONLINE_TO_KEYRING encyption methods
 encryption.upgrade_crypt_data_57_v1                                     : BUG#0 PXC does not support KEYRING and ONLINE_TO_KEYRING encyption methods
-encryption.upgrade_crypt_data_v2                                        : BUG#0 PXC does not support KEYRING and ONLINE_TO_KEYRING encyption methods
+encryption.upgrade_crypt_data_v2					: BUG#0 PXC does not support KEYRING and ONLINE_TO_KEYRING encyption methods
+encryption.innodb-spatial-index                                         : BUG#0 PXC does not support KEYRING and ONLINE_TO_KEYRING encyption methods
+encryption.innodb_alter_mk_to_rk                                        : BUG#0 PXC does not support KEYRING and ONLINE_TO_KEYRING encyption methods
 encryption.innodb-page_encryption-32k                                   : BUG#0 PXC requires 16k InnoDB page size
 
 # auth_sec

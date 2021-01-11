@@ -14,7 +14,7 @@
 --source include/wait_until_connected_again.inc
 
 --disable_query_log
---let $wsrep_provider_loaded = `SELECT COUNT(*) = 1 FROM performance_schema.global_variables WHERE VARIABLE_NAME LIKE "wsrep_provider" AND VARIABLE_VALUE NOT LIKE "none"`
+--let $wsrep_provider_loaded = `SELECT COUNT(*) = 1 FROM performance_schema.global_variables WHERE VARIABLE_NAME LIKE 'wsrep_provider' AND VARIABLE_VALUE NOT LIKE 'none'`
 
 if ($wsrep_provider_loaded)
 {

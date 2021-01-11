@@ -205,6 +205,7 @@ BEGIN
   COMMIT;
   SET SESSION sql_log_bin = OFF;
   DELETE FROM mysql.user WHERE user = 'mysql.pxc.sst.user';
+  DELETE FROM mysql.global_grants WHERE user = 'mysql.pxc.sst.user';
   COMMIT;
   SET SESSION sql_log_bin = ON;
 
