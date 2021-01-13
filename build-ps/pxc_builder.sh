@@ -21,6 +21,7 @@ Usage: $0 [OPTIONS]
         --rpm_release       RPM version( default = 1)
         --deb_release       DEB version( default = 1)
         --bin_release       BIN version( default = 1)
+        --debug             Build debug tarball
         --help) usage ;;
 Example $0 --builddir=/tmp/PXC80 --get_sources=1 --build_src_rpm=1 --build_rpm=1
 EOF
@@ -57,6 +58,7 @@ parse_arguments() {
             --deb_release=*) DEB_RELEASE="$val" ;;
             --bin_release=*) BIN_RELEASE="$val" ;;
             --no_clone=*) NO_CLONE="$val" ;;
+            --debug=*) DEBUG="$val" ;;
             --help) usage ;;      
             *)
               if test -n "$pick_args"
@@ -181,7 +183,7 @@ get_sources(){
     if [ -f /etc/redhat-release ]; then
       export OS_RELEASE="centos$(lsb_release -sr | awk -F'.' '{print $1}')"
       RHEL=$(rpm --eval %rhel)
-      source /opt/rh/devtoolset-7/enable
+      source /opt/rh/devtoolset-8/enable
       if [ "x${RHEL}" = "x8" ]; then
           cmake . -DDOWNLOAD_BOOST=1 -DWITH_ROCKSDB=0 -DWITH_BOOST=build-ps/boost -DFORCE_INSOURCE_BUILD=1
       else
@@ -206,6 +208,7 @@ get_sources(){
     # add git submodules because make dist uses git archive which doesn't include them
     rsync -av ${WORKDIR}/percona-xtradb-cluster/percona-xtradb-cluster-galera/ ${PXCDIR}/percona-xtradb-cluster-galera --exclude .git
     rsync -av ${WORKDIR}/percona-xtradb-cluster/wsrep-lib/ ${PXCDIR}/wsrep-lib --exclude .git
+    rsync -av ${WORKDIR}/percona-xtradb-cluster/extra/coredumper/ ${PXCDIR}/extra/coredumper --exclude .git
 
     sed -i 's:ROUTER_RUNTIMEDIR:/var/run/mysqlrouter/:g' ${PXCDIR}/packaging/rpm-common/*
     cd ${PXCDIR}/packaging/rpm-common || exit
@@ -292,8 +295,8 @@ install_deps() {
                 echo "waiting"
                 sleep 1
             done
-            yum -y install  gcc-c++ devtoolset-7-gcc-c++ devtoolset-7-binutils
-            source /opt/rh/devtoolset-7/enable
+            yum -y install  gcc-c++ devtoolset-8-gcc-c++ devtoolset-8-binutils
+            source /opt/rh/devtoolset-8/enable
             yum -y install scons check-devel boost-devel cmake3
             yum -y install zstd libzstd libzstd-devel
             alternatives --install /usr/local/bin/cmake cmake /usr/bin/cmake 10 \
@@ -341,8 +344,8 @@ install_deps() {
         apt-get -y install libtool libnuma-dev scons libboost-dev libboost-program-options-dev check
         apt-get -y install doxygen doxygen-gui graphviz rsync libcurl4-openssl-dev
         apt-get -y install libcurl4-openssl-dev libre2-dev pkg-config libtirpc-dev libev-dev
-        apt-get -y install --download-only percona-xtrabackup-24=2.4.20-1.${DIST}
-        apt-get -y install --download-only percona-xtrabackup-80=8.0.13-1.${DIST}
+        apt-get -y install --download-only percona-xtrabackup-24=2.4.21-1.${DIST}
+        apt-get -y install --download-only percona-xtrabackup-80=8.0.14-1.${DIST}
     fi
     return;
 }
@@ -548,12 +551,12 @@ build_rpm(){
     mkdir -vp rpmbuild/{SOURCES,SPECS,BUILD,SRPMS,RPMS}
     #
     mv *.src.rpm rpmbuild/SRPMS
-    source /opt/rh/devtoolset-7/enable
+    source /opt/rh/devtoolset-8/enable
     build_mecab_lib
     build_mecab_dict
 
     cd ${WORKDIR}  || exit
-    source /opt/rh/devtoolset-7/enable
+    source /opt/rh/devtoolset-8/enable
     source ${WORKDIR}/pxc-80.properties
     source ${CURDIR}/srpm/pxc-80.properties
     #
@@ -746,7 +749,7 @@ build_tarball(){
     if [ -f /etc/redhat-release ]; then
         export OS_RELEASE="centos$(lsb_release -sr | awk -F'.' '{print $1}')"
         RHEL=$(rpm --eval %rhel)
-        source /opt/rh/devtoolset-7/enable
+        source /opt/rh/devtoolset-8/enable
     fi
     #
 
@@ -777,7 +780,7 @@ build_tarball(){
     if [ -f /etc/redhat-release ]; then
         mkdir pxb-2.4
         pushd pxb-2.4
-        yumdownloader percona-xtrabackup-24-2.4.20
+        yumdownloader percona-xtrabackup-24-2.4.21
         rpm2cpio *.rpm | cpio --extract --make-directories --verbose
         mv usr/bin ./
         mv usr/lib* ./
@@ -790,7 +793,7 @@ build_tarball(){
 
         mkdir pxb-8.0
         pushd pxb-8.0
-        yumdownloader percona-xtrabackup-80-8.0.13
+        yumdownloader percona-xtrabackup-80-8.0.14
         rpm2cpio *.rpm | cpio --extract --make-directories --verbose
         mv usr/bin ./
         mv usr/lib64 ./
@@ -834,7 +837,11 @@ build_tarball(){
     if [ -f /etc/redhat-release ]; then
         sed -i 's:cmake ../../:/usr/bin/cmake3 ../../:g' ./build-ps/build-binary.sh
     fi
-    bash -x ./build-ps/build-binary.sh --with-jemalloc=jemalloc/ -t $BIN_RELEASE $BUILD_ROOT
+    if [[ ${DEBUG} == 1 ]]; then
+        bash -x ./build-ps/build-binary.sh --debug --with-jemalloc=jemalloc/ -t $BIN_RELEASE $BUILD_ROOT
+    else
+        bash -x ./build-ps/build-binary.sh --with-jemalloc=jemalloc/ -t $BIN_RELEASE $BUILD_ROOT
+    fi
     mkdir -p ${WORKDIR}/tarball
     mkdir -p ${CURDIR}/tarball
     cp  $BUILD_NUMBER/*.tar.gz ${WORKDIR}/tarball
@@ -862,6 +869,7 @@ INSTALL=0
 RPM_RELEASE=1
 DEB_RELEASE=1
 BIN_RELEASE=1
+DEBUG=0
 REVISION=0
 BRANCH="8.0"
 MECAB_INSTALL_DIR="${WORKDIR}/mecab-install"
