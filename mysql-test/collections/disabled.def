@@ -47,6 +47,8 @@ innodb.create_tablespace_32k                      : BUG#0 PXC requires 16k InnoD
 innodb.xdes_fseg_frag                             : BUG#0 PXC requires 16k InnoDB page size
 innodb.innodb_page_size_func                      : BUG#0 PXC requires 16k InnoDB page size
 innodb.innodb_pagesize_max_recordsize             : BUG#0 PXC requires 16k InnoDB page size
+innodb.mysqldump_max_recordsize                   : BUG#0 PXC requires 16k InnoDB page size
+innodb.blob-crash-4k                              : BUG#0 PXC requires 16k InnoDB page size
 
 # innodb_fts suite test
 innodb_fts.sync_block : BUG#2232 percona https://jira.percona.com/browse/PS-2232
@@ -333,6 +335,7 @@ encryption.upgrade_crypt_data_57_v1                                     : BUG#0 
 encryption.upgrade_crypt_data_v2					: BUG#0 PXC does not support KEYRING and ONLINE_TO_KEYRING encyption methods
 encryption.innodb-spatial-index                                         : BUG#0 PXC does not support KEYRING and ONLINE_TO_KEYRING encyption methods
 encryption.innodb_alter_mk_to_rk                                        : BUG#0 PXC does not support KEYRING and ONLINE_TO_KEYRING encyption methods
+encryption.upgrade_crypt_data_v1                                        : BUG#0 PXC does not support KEYRING and ONLINE_TO_KEYRING encyption methods
 encryption.innodb-page_encryption-32k                                   : BUG#0 PXC requires 16k InnoDB page size
 
 # auth_sec
