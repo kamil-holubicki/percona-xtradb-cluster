@@ -1012,7 +1012,7 @@ bool do_command(THD *thd)
   {
     mysql_mutex_lock(&thd->LOCK_wsrep_thd);
     wsrep_thd_set_query_state(thd, QUERY_IDLE);
-    if (thd->wsrep_conflict_state== MUST_ABORT)
+    if (thd->wsrep_conflict_state == MUST_ABORT)
     {
       wsrep_client_rollback(thd);
       thd->killed= THD::NOT_KILLED;
@@ -1842,7 +1842,7 @@ bool dispatch_command(THD *thd, const COM_DATA *com_data,
 
 #ifdef WITH_WSREP
 
-  if(WSREP_ON)
+  if (WSREP_ON)
   {
     if (!thd->in_multi_stmt_transaction_mode())
     {
@@ -1869,9 +1869,9 @@ bool dispatch_command(THD *thd, const COM_DATA *com_data,
                     " transaction. Try restarting the transaction", MYF(0));
         WSREP_DEBUG("WSREP detected deadlock/conflict for SQL: %s",
                     WSREP_QUERY(thd));
-        mysql_mutex_unlock(&thd->LOCK_wsrep_thd);
         thd->killed= THD::NOT_KILLED;
         thd->wsrep_conflict_state= NO_CONFLICT;
+        mysql_mutex_unlock(&thd->LOCK_wsrep_thd);
         goto dispatch_end;
       }
     }
@@ -1887,7 +1887,8 @@ bool dispatch_command(THD *thd, const COM_DATA *com_data,
       break;
 
 #ifdef WITH_WSREP
-    if (WSREP_ON) {
+    if (WSREP_ON)
+    {
       wsrep_mysql_parse(thd, thd->query().str, thd->query().length,
                         &parser_state, false);
     }
@@ -1985,10 +1986,13 @@ bool dispatch_command(THD *thd, const COM_DATA *com_data,
       parser_state.reset(beginning_of_next_stmt, length);
       /* TODO: set thd->lex->sql_command to SQLCOM_END here */
 #ifdef WITH_WSREP
-    if (WSREP_ON) {
+    if (WSREP_ON)
+    {
       wsrep_mysql_parse(thd, beginning_of_next_stmt, length,
                         &parser_state, false);
-    } else {
+    }
+    else
+    {
       mysql_parse(thd, &parser_state, false);
     }
 #else
@@ -8028,7 +8032,7 @@ static void wsrep_mysql_parse(THD *thd, const char *rawbuf, uint length,
     if (WSREP(thd)) {
       /* wsrep BF abort in query exec phase */
       mysql_mutex_lock(&thd->LOCK_wsrep_thd);
-      if (thd->wsrep_conflict_state== MUST_ABORT) {
+      if (thd->wsrep_conflict_state == MUST_ABORT) {
 
         /* Why this is needed ? If the current execution query on getting killed
         still continue to set eof status (SELECT SLEEP(x)) then before new
@@ -8149,6 +8153,16 @@ static void wsrep_mysql_parse(THD *thd, const char *rawbuf, uint length,
       mysql_mutex_unlock(&thd->LOCK_wsrep_thd);
     }
   }  while (thd->wsrep_conflict_state== RETRY_AUTOCOMMIT);
+
+  if (!WSREP(thd) &&
+      !thd->get_stmt_da()->is_error() &&
+      thd->killed &&
+      thd->wsrep_conflict_state == MUST_ABORT)
+  {
+      thd->get_stmt_da()->set_overwrite_status(true);
+      thd->get_stmt_da()->set_error_status(ER_QUERY_INTERRUPTED);
+      thd->get_stmt_da()->set_overwrite_status(false);
+  }
 
   if (thd->wsrep_retry_query)
   {

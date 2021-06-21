@@ -1,7 +1,7 @@
 #
 # Test a transaction within session with wsrep_on=0 being aborted
 # by TOI transaction.
-# For wsrep enabled sessions we expect that transactions interrupted while
+# For wsrep disabled sessions we expect that transactions interrupted while
 # executing will not be retried (wsrep_retry_autocommit),
 # and ER_QUERY_INTERRUPTED will be returned.
 #
