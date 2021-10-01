@@ -99,6 +99,8 @@ extern "C" bool wsrep_thd_is_in_rsu(const THD *thd);
 /* Return true if thd is in BF mode, either high_priority or TOI */
 extern "C" bool wsrep_thd_is_BF(const THD *thd, bool sync);
 
+extern "C" bool wsrep_thd_is_async_slave(const THD *thd);
+
 /* Return true if thd is streaming */
 extern "C" bool wsrep_thd_is_SR(const THD *thd);
 

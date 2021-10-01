@@ -95,6 +95,13 @@ extern "C" bool wsrep_thd_is_in_rsu(const THD *thd) {
   return thd->wsrep_cs().mode() == wsrep::client_state::m_rsu;
 }
 
+extern "C" bool wsrep_thd_is_async_slave(const THD *thd)
+{
+  return (WSREP_ON && !thd->wsrep_applier &&
+          (thd->system_thread == SYSTEM_THREAD_SLAVE_SQL    ||
+           thd->system_thread == SYSTEM_THREAD_SLAVE_WORKER));
+}
+
 extern "C" bool wsrep_thd_is_BF(const THD *thd, bool sync) {
   bool status = false;
   if (thd && (WSREP(thd) || wsrep_thd_is_in_rsu(thd))) {

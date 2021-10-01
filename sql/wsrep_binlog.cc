@@ -396,7 +396,12 @@ void wsrep_register_for_group_commit(THD *thd) {
     return;
   }
 
-  DBUG_ASSERT(thd->wsrep_trx().state() == wsrep::transaction::s_committing);
+  if (thd->wsrep_trx().state() != wsrep::transaction::s_committing)
+  {
+      fprintf(stderr, "KH: thd->wsrep_trx().state(): %d\n", thd->wsrep_trx().state());
+//      return;
+  }
+//  DBUG_ASSERT(thd->wsrep_trx().state() == wsrep::transaction::s_committing);
   MUTEX_LOCK(guard, &LOCK_wsrep_group_commit);
   wsrep_group_commit_queue.push(thd);
   thd->wsrep_enforce_group_commit = true;

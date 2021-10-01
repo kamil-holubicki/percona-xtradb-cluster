@@ -12665,8 +12665,8 @@ static int wsrep_append_key(
 ) {
   DBUG_ENTER("wsrep_append_key");
 #ifdef WSREP_DEBUG_PRINT
-  if (wsrep_debug) {
-    fprintf(stderr, "%s conn %lu, trx %llu, keylen %d, table %s\n SQL: %s ",
+  //if (wsrep_debug) {
+    fprintf(stderr, "%s conn %u, trx %llu, keylen %d, table %s\n SQL: %s ",
             wsrep_key_type_to_str(key_type), wsrep_thd_thread_id(thd),
             (long long)trx->id, key_len, table_share->table_name.str,
             wsrep_thd_query(thd));
@@ -12674,7 +12674,7 @@ static int wsrep_append_key(
       fprintf(stderr, "%hhX, ", key[i]);
     }
     fprintf(stderr, "\n");
-  }
+ // }
 #endif /* WSREP_DEBUG_PRINT */
   wsrep_buf_t wkey_part[3];
   wsrep_key_t wkey = {wkey_part, 3};
@@ -12833,6 +12833,12 @@ int ha_innobase::wsrep_append_keys(
                                        len1 + 1, key_type);
               if (rcode) DBUG_RETURN(rcode);
             }
+#if 0
+            // KH: let's add the whole index name as a key
+            rcode = wsrep_append_key(thd, trx, table_share, key_info->name,
+              strlen(key_info->name), WSREP_SERVICE_KEY_EXCLUSIVE);
+            if (rcode) DBUG_RETURN(rcode);
+#endif
           }
         }
 

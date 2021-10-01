@@ -894,7 +894,7 @@ wsrep_kill_victim(const trx_t * const trx, trx_t *victim_trx) {
       /* cannot release lock, until our lock
       is in the queue*/
     } else if (victim_trx != trx) {
-      if (wsrep_log_conflicts) {
+      if (true /*wsrep_log_conflicts*/) {
         ib::info() << "*** Priority TRANSACTION:";
         wsrep_trx_print_locking(stderr, trx, 3000);
 
@@ -2104,16 +2104,19 @@ void lock_make_trx_hit_list(trx_t *hp_trx, hit_list_t &hit_list) {
         disabled. A transaction must complete kill/abort of a
         victim transaction once marked and added to hit list. */
 #ifdef WITH_WSREP
-        if ((trx_is_high_priority(trx) && // !wsrep_thd_is_async_slave(trx->mysql_thd) &&
-             wsrep_thd_order_before(trx->mysql_thd, hp_trx->mysql_thd)) ||
+        if ((trx_is_high_priority(trx) &&
+             (!wsrep_on(trx->mysql_thd) ||
+              (!wsrep_thd_is_async_slave(trx->mysql_thd) &&
+               wsrep_thd_order_before(trx->mysql_thd, hp_trx->mysql_thd)))) ||
 #else
         if (trx_is_high_priority(trx) ||
 #endif
             (trx->in_innodb & TRX_FORCE_ROLLBACK) != 0 ||
             (trx->in_innodb & TRX_FORCE_ROLLBACK_ASYNC) != 0 ||
 #ifdef WITH_WSREP
-            (!trx_is_wsrep_trx(trx) &&
-             (trx->in_innodb & TRX_FORCE_ROLLBACK_DISABLE) != 0) || trx->abort) {
+            (!wsrep_on(trx->mysql_thd) &&
+             (trx->in_innodb & TRX_FORCE_ROLLBACK_DISABLE)) ||
+            trx->abort) {
 #else
             (trx->in_innodb & TRX_FORCE_ROLLBACK_DISABLE) != 0 || trx->abort) {
 #endif

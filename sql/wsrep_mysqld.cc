@@ -1594,6 +1594,10 @@ bool wsrep_prepare_key_for_innodb(const uchar *cache_key, size_t cache_key_len,
   key[*key_len].len = row_id_len;
   ++(*key_len);
 
+  // KH: lock on schema/table.
+  // Do it only if we touched/locked more than only modified row
+ // *key_len = 2;
+
   return true;
 }
 

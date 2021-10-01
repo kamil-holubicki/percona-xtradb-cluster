@@ -360,7 +360,7 @@ static inline int wsrep_after_commit(THD *thd, bool all) {
   WSREP_DEBUG("wsrep_after_commit: %d, %d, %lld, %d", wsrep_is_real(thd, all),
               wsrep_is_active(thd), (long long)wsrep_thd_trx_seqno(thd),
               wsrep_has_changes(thd));
-  DBUG_ASSERT(wsrep_run_commit_hook(thd, all));
+// KH:   DBUG_ASSERT(wsrep_run_commit_hook(thd, all));
 
   if (thd->wsrep_enforce_group_commit) {
     /* Ideally, for one-phase (with binlog=off) or two-phase (with binlog=on)
