@@ -9,6 +9,9 @@ INSERT INTO t1 VALUES (1);
 INSERT INTO t1 VALUES (1);
 
 --connection node_2
+--let $wait_condition = SELECT COUNT(*) = 2  FROM t1
+--source include/wait_condition.inc
+
 SET SESSION wsrep_osu_method=NBO;
 
 --error ER_DUP_ENTRY
