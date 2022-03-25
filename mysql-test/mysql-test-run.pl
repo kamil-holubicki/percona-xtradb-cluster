@@ -203,15 +203,6 @@ my $build_thread       = 0;
 my $daemonize_mysqld   = 0;
 my $debug_d            = "d";
 my $exe_ndbmtd_counter = 0;
-<<<<<<< HEAD
-
-# We need at least 63 ports per worker in PXC as every worker needs to support
-# upto 9 servers and each server needs 7 ports.
-my $ports_per_thread   = 70;
-||||||| 24801e21b45
-my $ports_per_thread   = 30;
-=======
->>>>>>> percona/ps/release-8.0.28-19
 my $source_dist        = 0;
 my $shutdown_report    = 0;
 my $valgrind_reports   = 0;
@@ -256,7 +247,10 @@ our $opt_suite_opt;
 our $opt_summary_report;
 our $opt_vardir;
 our $opt_xml_report;
-our $ports_per_thread   = 30;
+
+# We need at least 63 ports per worker in PXC as every worker needs to support
+# upto 9 servers and each server needs 7 ports.
+our $ports_per_thread   = 70;
 
 #
 # Suites run by default (i.e. when invoking ./mtr without parameters)

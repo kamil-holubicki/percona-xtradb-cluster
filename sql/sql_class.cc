@@ -1553,8 +1553,7 @@ void THD::release_resources() {
   mysql_mutex_unlock(&LOCK_status);
 
   m_thd_life_cycle_stage = enum_thd_life_cycle_stages::RESOURCES_RELEASED;
-<<<<<<< HEAD
-
+  disable_mem_cnt();
 #ifdef WITH_WSREP
   mysql_mutex_lock(&LOCK_wsrep_thd);
   mysql_mutex_unlock(&LOCK_wsrep_thd);
@@ -1578,10 +1577,6 @@ void THD::release_resources() {
   }
   wsrep_free_status(this);
 #endif /* WITH_WSREP */
-||||||| 24801e21b45
-=======
-  disable_mem_cnt();
->>>>>>> percona/ps/release-8.0.28-19
 }
 
 THD::~THD() {

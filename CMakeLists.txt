@@ -763,12 +763,8 @@ ENDIF()
 INCLUDE(CMakePushCheckState)
 
 # Add macros
-<<<<<<< HEAD
 INCLUDE(wsrep-lib)
-||||||| 24801e21b45
-=======
 INCLUDE(add_custom_target)
->>>>>>> percona/ps/release-8.0.28-19
 INCLUDE(pkg-config)
 INCLUDE(character_sets)
 INCLUDE(cmake_parse_arguments)
@@ -1984,14 +1980,10 @@ ADD_SUBDIRECTORY(mysys)
 ADD_SUBDIRECTORY(libmysql)
 ADD_SUBDIRECTORY(libbinlogevents)
 ADD_SUBDIRECTORY(libbinlogstandalone)
-<<<<<<< HEAD
 IF(WITH_WSREP)
    ADD_SUBDIRECTORY(wsrep-lib)
 ENDIF()
-||||||| 24801e21b45
-=======
 ADD_SUBDIRECTORY(libchangestreams)
->>>>>>> percona/ps/release-8.0.28-19
 
 IF(NOT WITHOUT_SERVER)
   IF(WITH_UNIT_TESTS)

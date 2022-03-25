@@ -3074,7 +3074,7 @@ static void clean_up_mutexes() {
   mysql_mutex_destroy(&LOCK_admin_tls_ctx_options);
   mysql_mutex_destroy(&LOCK_partial_revokes);
   mysql_mutex_destroy(&LOCK_authentication_policy);
-<<<<<<< HEAD
+  mysql_mutex_destroy(&LOCK_global_conn_mem_limit);
 #ifdef WITH_WSREP
   mysql_mutex_destroy(&LOCK_wsrep_ready);
   mysql_cond_destroy(&COND_wsrep_ready);
@@ -3094,10 +3094,6 @@ static void clean_up_mutexes() {
   mysql_mutex_destroy(&LOCK_wsrep_SR_store);
   mysql_mutex_destroy(&LOCK_wsrep_alter_tablespace);
 #endif /* WITH_WSREP */
-||||||| 24801e21b45
-=======
-  mysql_mutex_destroy(&LOCK_global_conn_mem_limit);
->>>>>>> percona/ps/release-8.0.28-19
 }
 
 /****************************************************************************
@@ -6039,7 +6035,8 @@ static int init_thread_environment() {
                    MY_MUTEX_INIT_FAST);
   mysql_mutex_init(key_LOCK_authentication_policy, &LOCK_authentication_policy,
                    MY_MUTEX_INIT_FAST);
-<<<<<<< HEAD
+  mysql_mutex_init(key_LOCK_global_conn_mem_limit, &LOCK_global_conn_mem_limit,
+                   MY_MUTEX_INIT_FAST);
 #ifdef WITH_WSREP
   mysql_mutex_init(key_LOCK_wsrep_ready, &LOCK_wsrep_ready, MY_MUTEX_INIT_FAST);
   mysql_cond_init(key_COND_wsrep_ready, &COND_wsrep_ready);
@@ -6068,11 +6065,6 @@ static int init_thread_environment() {
   mysql_mutex_init(key_LOCK_wsrep_alter_tablespace,
                    &LOCK_wsrep_alter_tablespace, MY_MUTEX_INIT_FAST);
 #endif /* WITH_WSREP */
-||||||| 24801e21b45
-=======
-  mysql_mutex_init(key_LOCK_global_conn_mem_limit, &LOCK_global_conn_mem_limit,
-                   MY_MUTEX_INIT_FAST);
->>>>>>> percona/ps/release-8.0.28-19
   return 0;
 }
 
@@ -13165,8 +13157,8 @@ static PSI_mutex_info all_server_mutexes[]=
   { &key_monitor_info_run_lock, "Source_IO_monitor::run_lock", 0, 0, PSI_DOCUMENT_ME},
   { &key_LOCK_delegate_connection_mutex, "LOCK_delegate_connection_mutex", PSI_FLAG_SINGLETON, 0, PSI_DOCUMENT_ME},
   { &key_LOCK_group_replication_connection_mutex, "LOCK_group_replication_connection_mutex", PSI_FLAG_SINGLETON, 0, PSI_DOCUMENT_ME},
-<<<<<<< HEAD
-  { &key_LOCK_authentication_policy, "LOCK_authentication_policy", PSI_FLAG_SINGLETON, 0, "A lock to ensure execution of CREATE USER or ALTER USER sql and SET @@global.authentication_policy variable are serialized"}
+  { &key_LOCK_authentication_policy, "LOCK_authentication_policy", PSI_FLAG_SINGLETON, 0, "A lock to ensure execution of CREATE USER or ALTER USER sql and SET @@global.authentication_policy variable are serialized"},
+  { &key_LOCK_global_conn_mem_limit, "LOCK_global_conn_mem_limit", PSI_FLAG_SINGLETON, 0, PSI_DOCUMENT_ME}
 #ifdef WITH_WSREP
   ,
   { &key_LOCK_wsrep_ready, "LOCK_wsrep_ready", PSI_FLAG_SINGLETON, 0, PSI_DOCUMENT_ME},
@@ -13189,12 +13181,6 @@ static PSI_mutex_info all_server_mutexes[]=
   { &key_LOCK_wsrep_thd_queue, "LOCK_wsrep_thd_queue", 0, 0, PSI_DOCUMENT_ME},
   { &key_LOCK_wsrep_alter_tablespace, "LOCK_wsrep_alter_tablespace", 0, 0, PSI_DOCUMENT_ME}
 #endif /* WITH_WSREP */
-||||||| 24801e21b45
-  { &key_LOCK_authentication_policy, "LOCK_authentication_policy", PSI_FLAG_SINGLETON, 0, "A lock to ensure execution of CREATE USER or ALTER USER sql and SET @@global.authentication_policy variable are serialized"}
-=======
-{ &key_LOCK_authentication_policy, "LOCK_authentication_policy", PSI_FLAG_SINGLETON, 0, "A lock to ensure execution of CREATE USER or ALTER USER sql and SET @@global.authentication_policy variable are serialized"},
-  { &key_LOCK_global_conn_mem_limit, "LOCK_global_conn_mem_limit", PSI_FLAG_SINGLETON, 0, PSI_DOCUMENT_ME}
->>>>>>> percona/ps/release-8.0.28-19
 };
 /* clang-format on */
 
