@@ -19,19 +19,6 @@
 # Documentation: http://www.percona.com/doc/percona-xtradb-cluster/manual/xtrabackup_sst.html
 # Make sure to read that before proceeding!
 
-# This is workaround for libsanitizer. For some reason SST script
-# hangs up in mktemp if LD_PRELOAD contains libasan.so.
-# Most probably something around
-# https://github.com/google/sanitizers/issues/654
-# We use LD_PRELOAD in ASan tests, because we use libeatmydata
-# and libjemalloc in LD_PRELOAD, and libasan.so in such a case has
-# to be specified as the 1st one explicitly.
-# Make the LD_PRELOAD empty in SST script's env if sanitizing.
-# This should be transparent for non-ASan envs.
-if [[ ${LD_PRELOAD} == *"libasan.so"* ]]; then
-  export LD_PRELOAD=
-fi
-
 #-------------------------------------------------------------------------------
 #
 # Step-1: Parse and read input params arguments. These are mainly
