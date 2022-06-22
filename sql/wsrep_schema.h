@@ -43,7 +43,7 @@ class Wsrep_schema {
     Initialize wsrep schema. Storage engines must be running before
     calling this function.
   */
-  bool init(THD *thd);
+  bool init(THD* thd);
 
   /*
     Store wsrep view info into wsrep schema.
@@ -121,6 +121,9 @@ class Wsrep_schema {
      @return Zero on success, non-zero on failure.
   */
   int recover_sr_transactions(THD *orig_thd);
+
+  std::string restore_current_mk_id(THD *thd);
+  int store_current_mk_id(THD *thd, const std::string& id);
 
  private:
   /* Non-copyable */

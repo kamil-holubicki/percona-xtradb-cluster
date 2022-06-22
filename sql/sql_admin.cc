@@ -2044,6 +2044,9 @@ bool Sql_cmd_alter_instance::execute(THD *thd) {
     case ROTATE_REDO_SYSTEM_KEY:
       alter_instance = new Rotate_redo_system_key(thd);
       break;
+    case ROTATE_GCACHE_MASTER_KEY:
+      alter_instance = new Rotate_gcache_master_key(thd);
+      break;
     case ALTER_INSTANCE_RELOAD_TLS:
       alter_instance = new Alter_instance_reload_tls(thd, channel_name_, true);
       break;

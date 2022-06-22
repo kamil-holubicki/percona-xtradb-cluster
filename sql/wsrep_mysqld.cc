@@ -66,6 +66,10 @@
 
 #include "debug_sync.h"
 
+#include "wsrep_master_key_manager.h"
+static bool wsrep_init_master_key();
+static void wsrep_deinit_master_key();
+
 /* wsrep-lib */
 Wsrep_server_state *Wsrep_server_state::m_instance;
 
@@ -645,8 +649,43 @@ void wsrep_init_sidno(const wsrep::id &uuid) {
   global_sid_lock->unlock();
 }
 
-bool wsrep_init_schema(THD *thd) {
+static void wsrep_init_thd_for_schema(THD *thd)
+{
+  thd->security_context()->skip_grants();
+  thd->system_thread= SYSTEM_THREAD_SLAVE_SQL;
+
+  thd->real_id=pthread_self(); // Keep purify happy
+
+  thd->set_new_thread_id();
+  thd->set_time();
+
+  /* */
+  thd->variables.wsrep_on    = 0;
+  /* No binlogging */
+  thd->variables.sql_log_bin = 0;
+  thd->variables.option_bits &= ~OPTION_BIN_LOG;
+
+  thd->thd_tx_priority = 1;
+  thd->tx_priority = 1;
+
+  /* No general log */
+  thd->variables.option_bits |= OPTION_LOG_OFF;
+  /* Read committed isolation to avoid gap locking */
+  thd->variables.transaction_isolation= ISO_READ_COMMITTED;
+  wsrep_assign_from_threadvars(thd);
+  wsrep_store_threadvars(thd);
+}
+
+bool wsrep_init_schema() {
   assert(!wsrep_schema);
+
+  THD* thd= new THD();
+  if (!thd) {
+    WSREP_ERROR("Unable to get thd");
+    return (1);
+  }
+  thd->thread_stack= (char*)&thd;
+  wsrep_init_thd_for_schema(thd);
 
   /*
    PXC upgrade requires modifications to some InnoDB tables.
@@ -656,18 +695,20 @@ bool wsrep_init_schema(THD *thd) {
   handlerton *ddse = ha_resolve_by_legacy_type(thd, DB_TYPE_INNODB);
   if (ddse->is_dict_readonly && ddse->is_dict_readonly()) {
     LogErr(WARNING_LEVEL, ER_DD_NO_WRITES_NO_REPOPULATION, "InnoDB", " ");
+    delete thd;
     return false;
   }
-
   WSREP_INFO("wsrep_init_schema_and_SR %p", wsrep_schema);
   if (!wsrep_schema) {
     wsrep_schema = new Wsrep_schema();
     if (wsrep_schema->init(thd)) {
       WSREP_ERROR("Failed to init wsrep schema");
+      delete thd;
       return true;
     }
   }
 
+  delete thd;
   return false;
 }
 
@@ -1050,6 +1091,7 @@ int wsrep_init_server() {
 void wsrep_init_globals() {
   wsrep_init_sidno(Wsrep_server_state::instance().connected_gtid().id());
   if (WSREP_ON) {
+// KH: here it is in upstream    wsrep_init_schema();
     Wsrep_server_state::instance().initialized();
   }
 }
@@ -1064,6 +1106,10 @@ int wsrep_init() {
 
   wsrep_init_position();
   // wsrep_sst_auth_init();
+  if(wsrep_init_master_key()) {
+    WSREP_ERROR("wsrep::init() master key initialization failed, must shutdown");
+    return 1;
+  }
 
   if (strlen(wsrep_provider) == 0 || !strcmp(wsrep_provider, WSREP_NONE)) {
     // enable normal operation in case no provider is specified
@@ -1226,6 +1272,7 @@ void wsrep_deinit() {
     wsrep_provider_capabilities = NULL;
     free(p);
   }
+  wsrep_deinit_master_key();
 }
 
 void wsrep_recover() {
@@ -3093,3 +3140,62 @@ bool wsrep_consistency_check(THD *thd) {
  This is to avoid interference of PXC specific part with generic server part.
  */
 String wsrep_thd_rewritten_query(THD *thd) { return thd->rewritten_query(); }
+
+
+static std::shared_ptr<MasterKeyManager> masterKeyManager;
+static bool wsrep_init_master_key() {
+  masterKeyManager = std::make_shared<MasterKeyManager>(
+    [](const std::string& msg) { WSREP_ERROR("%s", msg.c_str()); });
+  return masterKeyManager->Init();
+}
+
+static void wsrep_deinit_master_key() {
+  masterKeyManager->DeInit();
+  masterKeyManager.reset();
+}
+
+#define WSREP_KEY_PREFIX "WSREP-KEY-"
+static size_t WSREP_KEY_PREFIX_LEN = strlen(WSREP_KEY_PREFIX) + 1;
+static int wsrep_get_key_seqno(const std::string& keyId) {
+  std::string seqnoStr = keyId.substr(WSREP_KEY_PREFIX_LEN);
+  int seqno = std::stoi(seqnoStr);
+  return seqno;
+}
+
+static std::string oldMasterKeyId;
+std::string wsrep_get_master_key() {
+  return "01234567890123456789012345678901";
+  std::string mk_id =
+    oldMasterKeyId.length() ? oldMasterKeyId : wsrep_schema->restore_current_mk_id(current_thd);
+
+  // if mk_id is empty, we don't have mk generated yet
+  if (mk_id.length() == 0) {
+    mk_id = WSREP_KEY_PREFIX + std::string(server_uuid_ptr)
+      + "-1";
+    masterKeyManager->GenerateKey(mk_id);
+    // store new key id in wsrep table
+    wsrep_schema->store_current_mk_id(current_thd, mk_id); 
+  }
+  std::string mk = masterKeyManager->GetKey(mk_id);
+  return mk;
+}
+
+bool wsrep_rotate_master_key() {
+  oldMasterKeyId = wsrep_schema->restore_current_mk_id(current_thd);
+  // generate new key in keyring
+  int keySeqNo = wsrep_get_key_seqno(oldMasterKeyId);
+  keySeqNo++;
+  std::string newMasterKeyId = WSREP_KEY_PREFIX + std::string(server_uuid_ptr)
+    + "-" + std::to_string(keySeqNo);
+  masterKeyManager->GenerateKey(newMasterKeyId);
+  std::string mk = masterKeyManager->GetKey(newMasterKeyId);
+  //std::string mk("01234567890123456789012345678901");
+
+  // store new key id in wsrep table
+  wsrep_schema->store_current_mk_id(current_thd, newMasterKeyId); 
+
+  // send the new key to provider
+  wsrep::const_buffer key(mk.c_str(), mk.length());
+  wsrep::provider &provider = Wsrep_server_state::instance().provider();
+  return (wsrep::provider::status::success !=  provider.enc_set_key(key));
+}

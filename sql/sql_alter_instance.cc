@@ -178,6 +178,27 @@ bool Rotate_innodb_master_key::execute() {
   return false;
 }
 
+
+/*
+  @brief
+  Executes GCache master key rotation.
+
+  @returns false on success
+           true on error
+
+  In case of failure, appropriate error
+  is logged by function.
+*/
+extern bool wsrep_rotate_master_key();
+bool Rotate_gcache_master_key::execute() {
+  if (check_security_context()) return true;
+  if (wsrep_rotate_master_key()) return true;
+
+  my_ok(m_thd);
+  return false;
+}
+
+
 bool Rotate_percona_system_key::rotate() {
   size_t key_length{0};
 

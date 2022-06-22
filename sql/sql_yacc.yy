@@ -16396,6 +16396,10 @@ alter_instance_action:
             {
               $$= NEW_PTN PT_alter_instance(ROTATE_BINLOG_MASTER_KEY, EMPTY_CSTR, 0);
             }
+            else if (is_identifier($2, "GCACHE"))
+            {
+              $$= NEW_PTN PT_alter_instance(ROTATE_GCACHE_MASTER_KEY, EMPTY_CSTR, 0);
+            }
             else
             {
               YYTHD->syntax_error_at(@2);
