@@ -40,7 +40,6 @@
 #define WSREP_STREAMING_TABLE "wsrep_streaming_log"
 #define WSREP_CLUSTER_TABLE "wsrep_cluster"
 #define WSREP_MEMBERS_TABLE "wsrep_cluster_members"
-#define WSREP_MK_ID_TABLE "wsrep_mk_id"
 
 const char *wsrep_sr_table_name_full = WSREP_SCHEMA "/" WSREP_STREAMING_TABLE;
 
@@ -48,7 +47,6 @@ static const std::string wsrep_schema_str = WSREP_SCHEMA;
 static const std::string sr_table_str = WSREP_STREAMING_TABLE;
 static const std::string cluster_table_str = WSREP_CLUSTER_TABLE;
 static const std::string members_table_str = WSREP_MEMBERS_TABLE;
-static const std::string mk_id_table_str = WSREP_MK_ID_TABLE;
 
 static const std::string create_cluster_table_str =
     "CREATE TABLE IF NOT EXISTS " + wsrep_schema_str + "." + cluster_table_str +
@@ -67,12 +65,6 @@ static const std::string create_members_table_str =
     "cluster_uuid CHAR(36) NOT NULL,"
     "node_name CHAR(32) NOT NULL,"
     "node_incoming_address VARCHAR(256) NOT NULL"
-    ") ENGINE=InnoDB";
-
-static const std::string create_mk_id_table_str =
-    "CREATE TABLE IF NOT EXISTS " + wsrep_schema_str + "." + mk_id_table_str +
-    "("
-    "id CHAR(128) PRIMARY KEY"
     ") ENGINE=InnoDB";
 
 #ifdef WSREP_SCHEMA_MEMBERS_HISTORY
@@ -107,9 +99,6 @@ static const std::string delete_from_cluster_table =
 
 static const std::string delete_from_members_table =
     "DELETE FROM " + wsrep_schema_str + "." + members_table_str;
-
-static const std::string delete_from_mk_id_table =
-    "DELETE FROM " + wsrep_schema_str + "." + mk_id_table_str;
 
 namespace Wsrep_schema_impl {
 
@@ -566,8 +555,8 @@ Wsrep_schema::Wsrep_schema() {}
 
 Wsrep_schema::~Wsrep_schema() {}
 
-bool Wsrep_schema::init(THD* thd) {
-  DBUG_TRACE;
+bool Wsrep_schema::init(THD *thd) {
+  DBUG_ENTER("Wsrep_schema::init()");
 
   if (Wsrep_schema_impl::execute_SQL(thd, create_cluster_table_str.c_str(),
                                      create_cluster_table_str.size()) ||
@@ -580,10 +569,10 @@ bool Wsrep_schema::init(THD* thd) {
 #endif /* WSREP_SCHEMA_MEMBERS_HISTORY */
       Wsrep_schema_impl::execute_SQL(thd, create_frag_table_str.c_str(),
                                      create_frag_table_str.size())) {
-    return true;
+    DBUG_RETURN(true);
   }
 
-  return false;
+  DBUG_RETURN(false);
 }
 
 int Wsrep_schema::store_view(THD *thd, const Wsrep_view &view) {
@@ -1266,109 +1255,5 @@ int Wsrep_schema::recover_sr_transactions(THD *orig_thd) {
   Wsrep_schema_impl::finish_stmt(&storage_thd);
   trans_commit(&storage_thd);
 out:
-  DBUG_RETURN(ret);
-}
-
-std::string Wsrep_schema::restore_current_mk_id(THD *thd) {
-  DBUG_ENTER("Wsrep_schema::restore_current_mk_id()");
-
-  int ret = 1;
-  int error;
-
-  TABLE *mk_id_table = 0;
-  bool end_mk_id_scan = false;
-
-  /* variables below need to be initialized in case master key id table is empty */
-  std::string mk_id;
-
-  // we don't want causal waits for reading non-replicated private data
-  int const wsrep_sync_wait_saved = thd->variables.wsrep_sync_wait;
-  thd->variables.wsrep_sync_wait = 0;
-
-  /*
-    Read from master key id table
-   */
-  Wsrep_schema_impl::init_stmt(thd);
-  if (Wsrep_schema_impl::open_for_read(thd, mk_id_table_str.c_str(),
-                                       &mk_id_table) ||
-      Wsrep_schema_impl::init_for_scan(mk_id_table)) {
-    goto out;
-  }
-
-  if (((error = Wsrep_schema_impl::next_record(mk_id_table)) != 0 ||
-       Wsrep_schema_impl::scan(mk_id_table, 0, mk_id)) &&
-      error != HA_ERR_END_OF_FILE) {
-    end_mk_id_scan = true;
-    goto out;
-  }
-
-  if (Wsrep_schema_impl::end_scan(mk_id_table)) {
-    goto out;
-  }
-  Wsrep_schema_impl::finish_stmt(thd);
-
-  ret = 0; /* Success*/
-out:
-
-  if (end_mk_id_scan) Wsrep_schema_impl::end_scan(mk_id_table);
-
-  if (0 != ret) {
-    Wsrep_schema_impl::finish_stmt(thd);
-  }
-  thd->mdl_context.release_transactional_locks();
-
-  thd->variables.wsrep_sync_wait = wsrep_sync_wait_saved;
-
-  if (0 == ret) {
-    if (wsrep_debug) {
-      std::ostringstream os;
-      os << "Restored mk id:\n" << mk_id;
-      WSREP_INFO("%s", os.str().c_str());
-    }
-    DBUG_RETURN(mk_id);
-  } else {
-    WSREP_ERROR("wsrep_schema::restore_current_mk_id() failed.");
-    DBUG_RETURN(std::string());
-  }
-}
-
-int Wsrep_schema::store_current_mk_id(THD * thd, const std::string& id) {
-  DBUG_ENTER("Wsrep_schema::store_current_mk_id()");
-  int ret = 1;
-  int error;
-  TABLE *mk_id_table = 0;
-
-  Wsrep_schema_impl::wsrep_off wsrep_off(thd);
-  Wsrep_schema_impl::binlog_off binlog_off(thd);
-
-  /*
-    Clean up master key id table.
-  */
-  if (Wsrep_schema_impl::execute_SQL(thd, delete_from_mk_id_table.c_str(),
-                                     delete_from_mk_id_table.size())) {
-    goto out;
-  }
-
-  /*
-    Store master key id
-  */
-  Wsrep_schema_impl::init_stmt(thd);
-  if (Wsrep_schema_impl::open_for_write(thd, mk_id_table_str.c_str(),
-                                        &mk_id_table)) {
-    goto out;
-  }
-
-  Wsrep_schema_impl::store(mk_id_table, 0, id);
-
-  if ((error = Wsrep_schema_impl::update_or_insert(mk_id_table))) {
-    WSREP_ERROR("failed to write to master key id table: %d", error);
-    goto out;
-  }
-
-  Wsrep_schema_impl::finish_stmt(thd);
-
-  ret = 0;
-out:
-
   DBUG_RETURN(ret);
 }

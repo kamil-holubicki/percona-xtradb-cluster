@@ -192,7 +192,10 @@ bool Rotate_innodb_master_key::execute() {
 extern bool wsrep_rotate_master_key();
 bool Rotate_gcache_master_key::execute() {
   if (check_security_context()) return true;
-  if (wsrep_rotate_master_key()) return true;
+  if (wsrep_rotate_master_key()){
+    my_error(ER_CANNOT_FIND_KEY_IN_KEYRING, MYF(0));
+    return true;
+  }
 
   my_ok(m_thd);
   return false;

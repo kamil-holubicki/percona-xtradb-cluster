@@ -321,6 +321,7 @@ static PSI_memory_key key_memory_plugin_bookmark;
 
 extern st_mysql_plugin *mysql_optional_plugins[];
 extern st_mysql_plugin *mysql_mandatory_plugins[];
+extern st_mysql_plugin *mysql_mandatory_keyring_plugin[];
 
 /**
   @note The order of the enumeration is critical.
@@ -1518,12 +1519,12 @@ bool plugin_register_early_plugins(int *argc, char **argv, int flags) {
   @param argv actual arguments, propagated to the plugin
   @return Operation outcome, false means no errors
  */
-bool plugin_register_builtin_and_init_core_se(int *argc, char **argv) {
+static bool plugin_register_builtin_and_init_core_se2(int *argc, char **argv, st_mysql_plugin **plugins) {
   bool mandatory = true;
   DBUG_TRACE;
 
   /* Don't allow initializing twice */
-  assert(!initialized);
+//  assert(!initialized);
 
   /* Allocate the temporary mem root, will be freed before returning */
   MEM_ROOT tmp_root(key_memory_plugin_init_tmp, 4096);
@@ -1532,7 +1533,7 @@ bool plugin_register_builtin_and_init_core_se(int *argc, char **argv) {
   initialized = true;
 
   /* First we register the builtin mandatory and optional plugins */
-  for (struct st_mysql_plugin **builtins = mysql_mandatory_plugins;
+  for (struct st_mysql_plugin **builtins = plugins /*mysql_mandatory_plugins*/;
        *builtins || mandatory; builtins++) {
     /* Switch to optional plugins when done with the mandatory ones */
     if (!*builtins) {
@@ -1617,8 +1618,8 @@ bool plugin_register_builtin_and_init_core_se(int *argc, char **argv) {
   }
 
   /* Should now be set to MyISAM storage engine */
-  assert(global_system_variables.table_plugin);
-  assert(global_system_variables.temp_table_plugin);
+ // KH:  assert(global_system_variables.table_plugin);
+ // KH: assert(global_system_variables.temp_table_plugin);
 
   mysql_mutex_unlock(&LOCK_plugin);
 
@@ -1629,6 +1630,14 @@ err_unlock:
   mysql_mutex_unlock(&LOCK_plugin);
   tmp_root.Clear();
   return true;
+}
+
+bool plugin_register_keyring(int *argc, char**argv) {
+  return plugin_register_builtin_and_init_core_se2(argc, argv, mysql_mandatory_keyring_plugin);
+}
+
+bool plugin_register_builtin_and_init_core_se(int *argc, char **argv) {
+  return plugin_register_builtin_and_init_core_se2(argc, argv, mysql_mandatory_plugins);
 }
 
 bool is_builtin_and_core_se_initialized() { return initialized; }

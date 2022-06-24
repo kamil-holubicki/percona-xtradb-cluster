@@ -122,9 +122,6 @@ class Wsrep_schema {
   */
   int recover_sr_transactions(THD *orig_thd);
 
-  std::string restore_current_mk_id(THD *thd);
-  int store_current_mk_id(THD *thd, const std::string& id);
-
  private:
   /* Non-copyable */
   Wsrep_schema(const Wsrep_schema &);

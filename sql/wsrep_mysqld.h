@@ -183,7 +183,7 @@ void wsrep_update_cluster_state_uuid(const char *str);
 void wsrep_filter_new_cluster(int *argc, char *argv[]);
 
 int wsrep_init();
-bool wsrep_init_schema();
+bool wsrep_init_schema(THD* thd);
 void wsrep_deinit();
 void wsrep_recover();
 bool wsrep_before_SE();  // initialize wsrep before storage

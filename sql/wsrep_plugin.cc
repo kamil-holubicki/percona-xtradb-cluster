@@ -19,8 +19,10 @@
 
 #include <mysql/plugin.h>
 
+extern bool wsrep_server_ready();
 static int wsrep_plugin_init(void *p __attribute__((unused))) {
   WSREP_DEBUG("wsrep_plugin_init()");
+//  wsrep_server_ready();
   return 0;
 }
 

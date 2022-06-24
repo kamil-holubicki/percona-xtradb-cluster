@@ -649,43 +649,9 @@ void wsrep_init_sidno(const wsrep::id &uuid) {
   global_sid_lock->unlock();
 }
 
-static void wsrep_init_thd_for_schema(THD *thd)
-{
-  thd->security_context()->skip_grants();
-  thd->system_thread= SYSTEM_THREAD_SLAVE_SQL;
 
-  thd->real_id=pthread_self(); // Keep purify happy
-
-  thd->set_new_thread_id();
-  thd->set_time();
-
-  /* */
-  thd->variables.wsrep_on    = 0;
-  /* No binlogging */
-  thd->variables.sql_log_bin = 0;
-  thd->variables.option_bits &= ~OPTION_BIN_LOG;
-
-  thd->thd_tx_priority = 1;
-  thd->tx_priority = 1;
-
-  /* No general log */
-  thd->variables.option_bits |= OPTION_LOG_OFF;
-  /* Read committed isolation to avoid gap locking */
-  thd->variables.transaction_isolation= ISO_READ_COMMITTED;
-  wsrep_assign_from_threadvars(thd);
-  wsrep_store_threadvars(thd);
-}
-
-bool wsrep_init_schema() {
+bool wsrep_init_schema(THD *thd) {
   assert(!wsrep_schema);
-
-  THD* thd= new THD();
-  if (!thd) {
-    WSREP_ERROR("Unable to get thd");
-    return (1);
-  }
-  thd->thread_stack= (char*)&thd;
-  wsrep_init_thd_for_schema(thd);
 
   /*
    PXC upgrade requires modifications to some InnoDB tables.
@@ -695,7 +661,6 @@ bool wsrep_init_schema() {
   handlerton *ddse = ha_resolve_by_legacy_type(thd, DB_TYPE_INNODB);
   if (ddse->is_dict_readonly && ddse->is_dict_readonly()) {
     LogErr(WARNING_LEVEL, ER_DD_NO_WRITES_NO_REPOPULATION, "InnoDB", " ");
-    delete thd;
     return false;
   }
   WSREP_INFO("wsrep_init_schema_and_SR %p", wsrep_schema);
@@ -703,12 +668,10 @@ bool wsrep_init_schema() {
     wsrep_schema = new Wsrep_schema();
     if (wsrep_schema->init(thd)) {
       WSREP_ERROR("Failed to init wsrep schema");
-      delete thd;
       return true;
     }
   }
 
-  delete thd;
   return false;
 }
 
@@ -3154,48 +3117,25 @@ static void wsrep_deinit_master_key() {
   masterKeyManager.reset();
 }
 
-#define WSREP_KEY_PREFIX "WSREP-KEY-"
-static size_t WSREP_KEY_PREFIX_LEN = strlen(WSREP_KEY_PREFIX) + 1;
-static int wsrep_get_key_seqno(const std::string& keyId) {
-  std::string seqnoStr = keyId.substr(WSREP_KEY_PREFIX_LEN);
-  int seqno = std::stoi(seqnoStr);
-  return seqno;
-}
-
-static std::string oldMasterKeyId;
-std::string wsrep_get_master_key() {
-  return "01234567890123456789012345678901";
-  std::string mk_id =
-    oldMasterKeyId.length() ? oldMasterKeyId : wsrep_schema->restore_current_mk_id(current_thd);
-
-  // if mk_id is empty, we don't have mk generated yet
-  if (mk_id.length() == 0) {
-    mk_id = WSREP_KEY_PREFIX + std::string(server_uuid_ptr)
-      + "-1";
-    masterKeyManager->GenerateKey(mk_id);
-    // store new key id in wsrep table
-    wsrep_schema->store_current_mk_id(current_thd, mk_id); 
-  }
-  std::string mk = masterKeyManager->GetKey(mk_id);
+std::string wsrep_get_master_key(const std::string& keyId) {
+//  return "01234567890123456789012345678901";
+  std::string mk = masterKeyManager->GetKey(keyId);
   return mk;
 }
 
+bool wsrep_new_master_key(const std::string& keyId) {
+//  return true;
+  return masterKeyManager->GenerateKey(keyId);
+}
+
 bool wsrep_rotate_master_key() {
-  oldMasterKeyId = wsrep_schema->restore_current_mk_id(current_thd);
-  // generate new key in keyring
-  int keySeqNo = wsrep_get_key_seqno(oldMasterKeyId);
-  keySeqNo++;
-  std::string newMasterKeyId = WSREP_KEY_PREFIX + std::string(server_uuid_ptr)
-    + "-" + std::to_string(keySeqNo);
-  masterKeyManager->GenerateKey(newMasterKeyId);
-  std::string mk = masterKeyManager->GetKey(newMasterKeyId);
-  //std::string mk("01234567890123456789012345678901");
+  wsrep::provider &provider = Wsrep_server_state::instance().provider();
+  return (wsrep::provider::status::success !=  provider.rotate_gcache_key());
+}
 
-  // store new key id in wsrep table
-  wsrep_schema->store_current_mk_id(current_thd, newMasterKeyId); 
-
-  // send the new key to provider
-  wsrep::const_buffer key(mk.c_str(), mk.length());
+bool wsrep_server_ready() {
+  std::string str("test");
+  wsrep::const_buffer key(str.c_str(), str.length());
   wsrep::provider &provider = Wsrep_server_state::instance().provider();
   return (wsrep::provider::status::success !=  provider.enc_set_key(key));
 }
