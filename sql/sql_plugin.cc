@@ -1519,7 +1519,7 @@ bool plugin_register_early_plugins(int *argc, char **argv, int flags) {
   @param argv actual arguments, propagated to the plugin
   @return Operation outcome, false means no errors
  */
-static bool plugin_register_builtin_and_init_core_se2(int *argc, char **argv, st_mysql_plugin **plugins) {
+static bool plugin_register_builtin_and_init_core_se2(int *argc, char **argv, st_mysql_plugin **plugins, bool register_optional_plugins=true) {
   bool mandatory = true;
   DBUG_TRACE;
 
@@ -1539,7 +1539,7 @@ static bool plugin_register_builtin_and_init_core_se2(int *argc, char **argv, st
     if (!*builtins) {
       builtins = mysql_optional_plugins;
       mandatory = false;
-      if (!*builtins) break;
+      if (!*builtins || !register_optional_plugins) break;
     }
     for (struct st_mysql_plugin *plugin = *builtins; plugin->info; plugin++) {
       struct st_plugin_int tmp;
@@ -1633,7 +1633,7 @@ err_unlock:
 }
 
 bool plugin_register_keyring(int *argc, char**argv) {
-  return plugin_register_builtin_and_init_core_se2(argc, argv, mysql_mandatory_keyring_plugin);
+  return plugin_register_builtin_and_init_core_se2(argc, argv, mysql_mandatory_keyring_plugin, false);
 }
 
 bool plugin_register_builtin_and_init_core_se(int *argc, char **argv) {
