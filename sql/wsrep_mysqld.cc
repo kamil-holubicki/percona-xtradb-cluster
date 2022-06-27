@@ -1054,7 +1054,6 @@ int wsrep_init_server() {
 void wsrep_init_globals() {
   wsrep_init_sidno(Wsrep_server_state::instance().connected_gtid().id());
   if (WSREP_ON) {
-// KH: here it is in upstream    wsrep_init_schema();
     Wsrep_server_state::instance().initialized();
   }
 }

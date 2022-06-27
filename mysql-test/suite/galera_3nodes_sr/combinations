@@ -1,3 +1,2 @@
 [data-at-rest-encryption]
 early-plugin-load=keyring_file.so
-keyring_file_data=$MYSQLTEST_VARDIR/tmp/keyring
