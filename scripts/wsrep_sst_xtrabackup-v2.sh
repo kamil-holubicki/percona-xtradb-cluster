@@ -1856,14 +1856,15 @@ then
     donor_tmpdir=$(mktemp --tmpdir="${tmpdirbase}" --directory donor_tmp_XXXX)
 
     # raise error if keyring_plugin is enabled but transit encryption is not
-    if [[ $keyring_plugin -eq 1 && $encrypt -le 0 ]]; then
-        wsrep_log_error "******************* FATAL ERROR ********************** "
-        wsrep_log_error "FATAL: keyring plugin is enabled but transit channel" \
-                        "is unencrypted. Enable encryption for SST traffic"
-        wsrep_log_error "Line $LINENO"
-        wsrep_log_error "****************************************************** "
-        # KH: exit 22
-    fi
+    # KH:
+    #if [[ $keyring_plugin -eq 1 && $encrypt -le 0 ]]; then
+    #    wsrep_log_error "******************* FATAL ERROR ********************** "
+    #    wsrep_log_error "FATAL: keyring plugin is enabled but transit channel" \
+    #                    "is unencrypted. Enable encryption for SST traffic"
+    #    wsrep_log_error "Line $LINENO"
+    #    wsrep_log_error "****************************************************** "
+    #    exit 22
+    #fi
 
     # Create the SST info file
     # This file contains SST information that is passed from the
@@ -2351,16 +2352,9 @@ then
         fi
 
         wsrep_log_info "Preparing the backup at ${DATA}"
-        wsrep_log_info "INNOPREPARE $INNOPREPARE"
-        wsrep_log_info "rebuildcmd: $rebuildcmd"
-        wsrep_log_info "keyringapplyopt: $keyringapplyopt"
-        wsrep_log_info "encrypt_prepare_options: $encrypt_prepare_options"
-
         timeit "Xtrabackup prepare stage" "$INNOPREPARE"
-        errcode=$?
-        wsrep_log_info "KH: After innoprepare: $errcode"
 
-        if [ $errcode -ne 0 ];
+        if [ $? -ne 0 ];
         then
             wsrep_log_error "******************* FATAL ERROR ********************** "
             wsrep_log_error "${XTRABACKUP_BIN} apply finished with errors."
