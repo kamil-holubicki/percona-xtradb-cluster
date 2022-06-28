@@ -2351,7 +2351,10 @@ then
         fi
 
         wsrep_log_info "Preparing the backup at ${DATA}"
+        wsrep_log_info " $INNOPREPARE"
+
         timeit "Xtrabackup prepare stage" "$INNOPREPARE"
+        wsrep_log_info "KH: After innoprepare"
 
         if [ $? -ne 0 ];
         then
