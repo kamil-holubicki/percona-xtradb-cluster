@@ -9,7 +9,7 @@
 log-slave-updates
 log-bin=mysqld-bin
 binlog-format=row
-loose_mysqlx=0
+mysqlx=0
 
 [mysqld.1]
 server-id=1
