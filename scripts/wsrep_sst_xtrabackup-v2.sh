@@ -2351,12 +2351,16 @@ then
         fi
 
         wsrep_log_info "Preparing the backup at ${DATA}"
-        wsrep_log_info " $INNOPREPARE"
+        wsrep_log_info "INNOPREPARE $INNOPREPARE"
+        wsrep_log_info "rebuildcmd: $rebuildcmd"
+        wsrep_log_info "keyringapplyopt: $keyringapplyopt"
+        wsrep_log_info "encrypt_prepare_options: $encrypt_prepare_options"
 
         timeit "Xtrabackup prepare stage" "$INNOPREPARE"
-        wsrep_log_info "KH: After innoprepare"
+        errcode=$?
+        wsrep_log_info "KH: After innoprepare: $errcode"
 
-        if [ $? -ne 0 ];
+        if [ $errcode -ne 0 ];
         then
             wsrep_log_error "******************* FATAL ERROR ********************** "
             wsrep_log_error "${XTRABACKUP_BIN} apply finished with errors."
