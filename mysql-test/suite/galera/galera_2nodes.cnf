@@ -3,7 +3,7 @@
 
 [mysqld]
 default-storage-engine=InnoDB
-mysqlx=0
+loose-mysqlx=0
 
 [mysqld.1]
 log-bin=mysqld-bin
