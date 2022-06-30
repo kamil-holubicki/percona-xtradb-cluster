@@ -165,6 +165,7 @@ static char provider_vendor[256] = {
 
 /* Set to true on successful connect and false on disconnect. */
 bool wsrep_connected = false;
+bool forceKeysFetch = false;
 
 // wsrep status variable - start
 bool wsrep_ready = false;  // node can accept queries
@@ -1219,6 +1220,8 @@ void wsrep_init_startup(bool sst_first) {
     // initialization and we cannot recover anyway.
     unireg_abort(MYSQLD_ABORT_EXIT);
   }
+  forceKeysFetch = true;
+
 }
 
 void wsrep_deinit() {

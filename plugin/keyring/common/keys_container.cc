@@ -32,6 +32,8 @@
 using std::string;
 using std::unique_ptr;
 
+extern bool forceKeysFetch;
+
 namespace keyring {
 
 extern PSI_memory_key key_memory_KEYRING;
@@ -91,7 +93,10 @@ bool Keys_container::store_key_in_hash(IKey *key) {
 bool Keys_container::store_key(IKey *key) {
   fprintf(stderr, "KH: %s, key_id: %s\n", __FUNCTION__, key->get_key_id()->c_str());
   // KH:
-  load_keys_from_keyring_storage();
+  if (forceKeysFetch) {
+    load_keys_from_keyring_storage();
+    forceKeysFetch = false;
+  }
 
   if (system_keys_container->rotate_key_id_if_system_key_without_version(key) ||
       flush_to_backup() || store_key_in_hash(key))
@@ -125,7 +130,10 @@ IKey *Keys_container::fetch_key(IKey *key) {
   assert(key->get_key_type_as_string()->empty());
 
   // KH:
-  load_keys_from_keyring_storage();
+  if (forceKeysFetch) {
+    load_keys_from_keyring_storage();
+    forceKeysFetch = false;
+  }
 
   IKey *fetched_key = get_key_from_hash(key);
 
@@ -165,7 +173,10 @@ bool Keys_container::remove_key_from_hash(IKey *key) {
 bool Keys_container::remove_key(IKey *key) {
   fprintf(stderr, "KH: %s, key_id: %s\n", __FUNCTION__, key->get_key_id()->c_str());
   // KH:
-  load_keys_from_keyring_storage();
+  if (forceKeysFetch) {
+    load_keys_from_keyring_storage();
+    forceKeysFetch = false;
+  }
   IKey *fetched_key_to_delete = get_key_from_hash(key);
   // removing system keys is forbidden
   if (fetched_key_to_delete == nullptr ||
