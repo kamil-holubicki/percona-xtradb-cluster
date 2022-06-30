@@ -1069,10 +1069,6 @@ int wsrep_init() {
 
   wsrep_init_position();
   // wsrep_sst_auth_init();
-  if(wsrep_init_master_key()) {
-    WSREP_ERROR("wsrep::init() master key initialization failed, must shutdown");
-    return 1;
-  }
 
   if (strlen(wsrep_provider) == 0 || !strcmp(wsrep_provider, WSREP_NONE)) {
     // enable normal operation in case no provider is specified
@@ -1087,6 +1083,12 @@ int wsrep_init() {
       wsrep_init_provider_status_variables();
     }
     return err;
+  } else {
+    // there is provider. Initialize master key manager.
+    if(wsrep_init_master_key()) {
+      WSREP_ERROR("wsrep::init() master key initialization failed, must shutdown");
+      return 1;
+    }
   }
 
   global_system_variables.wsrep_on = 1;
