@@ -127,6 +127,7 @@ int wsrep_apply_events(THD *thd, Relay_log_info *rli __attribute__((unused)),
   int event = 1;
 
   DBUG_ENTER("wsrep_apply_events");
+
   if (!buf_len)
     WSREP_DEBUG("Empty apply event found while processing write-set: %lld",
                 (long long)wsrep_thd_trx_seqno(thd));

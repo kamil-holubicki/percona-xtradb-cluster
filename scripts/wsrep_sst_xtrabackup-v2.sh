@@ -1856,7 +1856,7 @@ then
     donor_tmpdir=$(mktemp --tmpdir="${tmpdirbase}" --directory donor_tmp_XXXX)
 
     # raise error if keyring_plugin is enabled but transit encryption is not
-    # KH:
+    # KH: commented out just to allow standard gcache MTR suites
     #if [[ $keyring_plugin -eq 1 && $encrypt -le 0 ]]; then
     #    wsrep_log_error "******************* FATAL ERROR ********************** "
     #    wsrep_log_error "FATAL: keyring plugin is enabled but transit channel" \
@@ -2246,12 +2246,11 @@ then
         # with ever increasing number of files and achieve nothing.
         find $ib_home_dir $ib_log_dir $ib_undo_dir $DATA -mindepth 1  -regex $cpat  -prune  -o -exec rm -rfv {} 1>/dev/null \+
 
-        # KH:
         if [[ -z $transition_key ]]; then
-            if [[ -r "$keyring_file_data" ]] || [[ -r "${keyring_file_data}.backup" ]];
+            if [[ -r "${keyring_file_data}.backup" ]];
             then
-            wsrep_log_info "Cleaning the existing keyring file"
-            rm -f "$keyring_file_data" "${keyring_file_data}.backup"
+            wsrep_log_info "Cleaning the existing keyring backup file"
+            rm -f "${keyring_file_data}.backup"
             fi
         fi
 
@@ -2406,12 +2405,8 @@ then
 
         fi
 
-        # If we have a transition key, remove the existing keyring file data
-        # it will be recreated in the move-back operation
-        # KH:
-#        if [[ -n $transition_key && -n $keyring_file_data ]]; then
-#            rm -f "$keyring_file_data"
-#        fi
+        # If there is keyring file, move back needs to keep it and
+        # add its keys there
 
         wsrep_log_info "Moving the backup to ${TDATA}"
 

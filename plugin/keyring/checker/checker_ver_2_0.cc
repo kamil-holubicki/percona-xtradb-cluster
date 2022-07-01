@@ -50,24 +50,15 @@ bool CheckerVer_2_0::is_dgst_correct(File file, Digest *digest) {
                                MYF(0)) == MY_FILEPOS_ERROR) ||
       mysql_file_read(file, dgst_read_from_file.value, SHA256_DIGEST_LENGTH,
                       MYF(0)) != SHA256_DIGEST_LENGTH)
-  {
-    fprintf(stderr, "KH: Digest not correct 1\n");
     return false;
-  }
   dgst_read_from_file.is_empty = false;
 
   if (strncmp(dummy_digest, reinterpret_cast<const char *>(digest->value),
               SHA256_DIGEST_LENGTH) == 0) {
     *digest = dgst_read_from_file;
-    fprintf(stderr, "KH: Digest correct - read from file\n");
     return true;
   }
   mysql_file_seek(file, 0, MY_SEEK_SET, MYF(0));
-
-  if (!(*digest == dgst_read_from_file)) {
-    fprintf(stderr, "KH: Digest not correct, but let's pretend it is\n");
-    *digest = dgst_read_from_file;
-  }
 
   return *digest == dgst_read_from_file;
 }

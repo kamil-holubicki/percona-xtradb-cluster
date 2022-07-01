@@ -32,7 +32,7 @@
 using std::string;
 using std::unique_ptr;
 
-extern bool forceKeysFetch;
+bool forceKeysFetch __attribute__((weak)) = false;
 
 namespace keyring {
 
@@ -79,7 +79,6 @@ void Keys_container::store_keys_metadata(IKey *key) {
 
 bool Keys_container::store_key_in_hash(IKey *key) {
   // TODO: This can be written more succinctly with C++17's try_emplace.
-    fprintf(stderr, "KH: %s key_id: %s\n", __FUNCTION__, key->get_key_id()->c_str());
   string signature = *key->get_key_signature();
   if (keys_hash->count(signature) != 0)
     return true;
@@ -91,8 +90,6 @@ bool Keys_container::store_key_in_hash(IKey *key) {
 }
 
 bool Keys_container::store_key(IKey *key) {
-  fprintf(stderr, "KH: %s, key_id: %s\n", __FUNCTION__, key->get_key_id()->c_str());
-  // KH:
   if (forceKeysFetch) {
     load_keys_from_keyring_storage();
     forceKeysFetch = false;
@@ -129,7 +126,6 @@ IKey *Keys_container::fetch_key(IKey *key) {
   assert(key->get_key_data() == nullptr);
   assert(key->get_key_type_as_string()->empty());
 
-  // KH:
   if (forceKeysFetch) {
     load_keys_from_keyring_storage();
     forceKeysFetch = false;
@@ -171,8 +167,6 @@ bool Keys_container::remove_key_from_hash(IKey *key) {
 }
 
 bool Keys_container::remove_key(IKey *key) {
-  fprintf(stderr, "KH: %s, key_id: %s\n", __FUNCTION__, key->get_key_id()->c_str());
-  // KH:
   if (forceKeysFetch) {
     load_keys_from_keyring_storage();
     forceKeysFetch = false;
@@ -205,11 +199,10 @@ bool Keys_container::load_keys_from_keyring_storage() {
       if (serialized_keys->get_next_key(&key_loaded) || key_loaded == nullptr ||
           key_loaded->is_key_valid() == false ||
           store_key_in_hash(key_loaded)) {
-        // KH: was_error = true;
-        fprintf(stderr, "KH: error. key: %s\n", key_loaded->get_key_id()->c_str());
-        delete key_loaded;
-        continue;
-        // KH: break;
+            if (forceKeysFetch) {
+              continue;
+            }
+            break;
       }
       system_keys_container->store_or_update_if_system_key_with_version(
           key_loaded);

@@ -410,7 +410,6 @@ bool Buffered_file_io::flush_to_backup(ISerialized_object *serialized_object) {
   File keyring_file = file_io.open(keyring_file_data_key,
                                    keyring_filename.c_str(), O_RDONLY, MYF(0));
 
-  fprintf(stderr, "KH: %s kf: %s, kfb: %s\n", __FUNCTION__, keyring_filename.c_str(), get_backup_filename()->c_str());
   // backup file must be available
   if (backup_file < 0) {
     // close the keyring file if necessary
@@ -506,8 +505,6 @@ bool Buffered_file_io::flush_to_storage(ISerialized_object *serialized_object) {
       file_io.open(keyring_file_data_key, keyring_filename.c_str(),
                    O_CREAT | O_RDWR, MYF(MY_WME));
 
-  fprintf(stderr, "KH: %s kf: %s, kfb: %s\n", __FUNCTION__, keyring_filename.c_str(), get_backup_filename()->c_str());
-
   // we need valid keyring file, and writing has to succeed
   if (keyring_file < 0 || check_keyring_file_structure(keyring_file) ||
       flush_buffer_to_storage(buffer, keyring_file)) {
@@ -559,8 +556,6 @@ bool Buffered_file_io::get_serialized_object(
       file_exist && keyring_open_mode ? O_RDONLY : O_RDWR | O_CREAT,
       MYF(MY_WME));
   if (file < 0) return true;
-
-  fprintf(stderr, "KH: %s kf: %s, kfb: %s\n", __FUNCTION__, keyring_filename.c_str(), get_backup_filename()->c_str());
 
   // try loading file content into a Buffer implementation
   std::unique_ptr<Buffer> buffer(new Buffer);

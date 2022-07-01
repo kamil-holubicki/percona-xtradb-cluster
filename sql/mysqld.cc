@@ -6864,8 +6864,8 @@ static int init_server_components() {
 #endif /* WITH_WSREP */
 
 #ifdef WITH_WSREP /* WSREP BEFORE SE */
-#if 1
-  //KH:
+  /* We need to load keyring before Galera, as we need to access
+     the Master Key during GCache recovery */
   /*Load early plugins */
   if (plugin_register_early_plugins(&remaining_argc, remaining_argv,
                                     (is_help_or_validate_option())
@@ -6874,8 +6874,8 @@ static int init_server_components() {
     LogErr(ERROR_LEVEL, ER_CANT_INITIALIZE_EARLY_PLUGINS);
     unireg_abort(1);
   }
-#endif
-  /* Load builtin plugins, initialize MyISAM, CSV and InnoDB */
+
+  /* Load builtin daemon keyring proxy plugin */
   if (plugin_register_keyring(&remaining_argc,
                               remaining_argv)) {
     if (!opt_validate_config)
@@ -7176,8 +7176,8 @@ static int init_server_components() {
     LogErr(ERROR_LEVEL, ER_CANT_CREATE_UUID);
     unireg_abort(MYSQLD_ABORT_EXIT);
   }
-#if 0
-  //KH: moved above
+
+#ifndef WITH_WSREP
   /*Load early plugins */
   if (plugin_register_early_plugins(&remaining_argc, remaining_argv,
                                     (is_help_or_validate_option())

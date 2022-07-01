@@ -43,7 +43,7 @@ class Wsrep_schema {
     Initialize wsrep schema. Storage engines must be running before
     calling this function.
   */
-  bool init(THD* thd);
+  bool init(THD *thd);
 
   /*
     Store wsrep view info into wsrep schema.

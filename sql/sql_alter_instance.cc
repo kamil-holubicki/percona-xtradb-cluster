@@ -178,7 +178,7 @@ bool Rotate_innodb_master_key::execute() {
   return false;
 }
 
-
+#ifdef WITH_WSREP
 /*
   @brief
   Executes GCache master key rotation.
@@ -200,7 +200,7 @@ bool Rotate_gcache_master_key::execute() {
   my_ok(m_thd);
   return false;
 }
-
+#endif  /* WITH_WSREP */
 
 bool Rotate_percona_system_key::rotate() {
   size_t key_length{0};

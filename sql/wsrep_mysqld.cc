@@ -650,7 +650,6 @@ void wsrep_init_sidno(const wsrep::id &uuid) {
   global_sid_lock->unlock();
 }
 
-
 bool wsrep_init_schema(THD *thd) {
   assert(!wsrep_schema);
 
@@ -664,6 +663,7 @@ bool wsrep_init_schema(THD *thd) {
     LogErr(WARNING_LEVEL, ER_DD_NO_WRITES_NO_REPOPULATION, "InnoDB", " ");
     return false;
   }
+
   WSREP_INFO("wsrep_init_schema_and_SR %p", wsrep_schema);
   if (!wsrep_schema) {
     wsrep_schema = new Wsrep_schema();
@@ -1084,7 +1084,10 @@ int wsrep_init() {
     }
     return err;
   } else {
-    // there is provider. Initialize master key manager.
+    /* There is provider. Initialize master key manager.
+       Even if there is no kering plugin loaded, it will initialize,
+       but will be useless. In such a case if Galera GCache encryption
+       is enabled, it will fail on master key fetch/generate. */
     if(wsrep_init_master_key()) {
       WSREP_ERROR("wsrep::init() master key initialization failed, must shutdown");
       return 1;
@@ -1222,8 +1225,13 @@ void wsrep_init_startup(bool sst_first) {
     // initialization and we cannot recover anyway.
     unireg_abort(MYSQLD_ABORT_EXIT);
   }
+  
+  // This is definitely a hack, but we need to force keyring cache to repopulate
+  // after SST, because SST might have add some keys.
+  // forceKeysFetch is a weak symbol, so if keyring plugin provides its own
+  // instance, we are good, if not... GCache necryption won't work.
+  // If not this way, we need to change keyring plugin interface.
   forceKeysFetch = true;
-
 }
 
 void wsrep_deinit() {
@@ -3122,24 +3130,15 @@ static void wsrep_deinit_master_key() {
 }
 
 std::string wsrep_get_master_key(const std::string& keyId) {
-//  return "01234567890123456789012345678901";
   std::string mk = masterKeyManager->GetKey(keyId);
   return mk;
 }
 
 bool wsrep_new_master_key(const std::string& keyId) {
-//  return true;
   return masterKeyManager->GenerateKey(keyId);
 }
 
 bool wsrep_rotate_master_key() {
   wsrep::provider &provider = Wsrep_server_state::instance().provider();
   return (wsrep::provider::status::success !=  provider.rotate_gcache_key());
-}
-
-bool wsrep_server_ready() {
-  std::string str("test");
-  wsrep::const_buffer key(str.c_str(), str.length());
-  wsrep::provider &provider = Wsrep_server_state::instance().provider();
-  return (wsrep::provider::status::success !=  provider.enc_set_key(key));
 }

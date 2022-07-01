@@ -277,7 +277,9 @@ wsrep_log_info()
 
 wsrep_log_debug()
 {
-    wsrep_log "DBG:(debug) $*"
+    if [[ -n "$WSREP_LOG_DEBUG" ]]; then
+        wsrep_log "DBG:(debug) $*"
+    fi
 }
 
 wsrep_cleanup_progress_file()
