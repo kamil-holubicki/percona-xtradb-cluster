@@ -223,8 +223,6 @@ Binlog_read_error::Error_type binlog_event_deserialize(
   }
 
   uchar event_type = buf[EVENT_TYPE_OFFSET];
-  // fprintf(stderr, "KH: binlog_event_deserialize buf: x%llX, event_type: %d\n",
-  //  (unsigned long long)buf, event_type);
   /*
     Sanity check for Format description event. This is needed because
     get_checksum_alg will assume that Format_description_event is well-formed
@@ -253,7 +251,6 @@ Binlog_read_error::Error_type binlog_event_deserialize(
   binary_log_debug::debug_checksum_test =
       DBUG_EVALUATE_IF("simulate_checksum_test_failure", true, false);
 #endif
-// KH:
 verify_checksum = true;
   if (verify_checksum &&
       Log_event_footer::event_checksum_test(const_cast<uchar *>(buffer),
