@@ -32,7 +32,9 @@
 using std::string;
 using std::unique_ptr;
 
-bool forceKeysFetch __attribute__((weak)) = false;
+#ifdef WITH_WSREP
+extern bool forceKeysFetch;
+#endif
 
 namespace keyring {
 
@@ -90,11 +92,12 @@ bool Keys_container::store_key_in_hash(IKey *key) {
 }
 
 bool Keys_container::store_key(IKey *key) {
+#ifdef WITH_WSREP
   if (forceKeysFetch) {
     load_keys_from_keyring_storage();
     forceKeysFetch = false;
   }
-
+#endif
   if (system_keys_container->rotate_key_id_if_system_key_without_version(key) ||
       flush_to_backup() || store_key_in_hash(key))
     return true;
@@ -126,10 +129,12 @@ IKey *Keys_container::fetch_key(IKey *key) {
   assert(key->get_key_data() == nullptr);
   assert(key->get_key_type_as_string()->empty());
 
+#ifdef WITH_WSREP
   if (forceKeysFetch) {
     load_keys_from_keyring_storage();
     forceKeysFetch = false;
   }
+#endif
 
   IKey *fetched_key = get_key_from_hash(key);
 
@@ -167,10 +172,12 @@ bool Keys_container::remove_key_from_hash(IKey *key) {
 }
 
 bool Keys_container::remove_key(IKey *key) {
+#ifdef WITH_WSREP
   if (forceKeysFetch) {
     load_keys_from_keyring_storage();
     forceKeysFetch = false;
   }
+#endif
   IKey *fetched_key_to_delete = get_key_from_hash(key);
   // removing system keys is forbidden
   if (fetched_key_to_delete == nullptr ||
@@ -199,9 +206,11 @@ bool Keys_container::load_keys_from_keyring_storage() {
       if (serialized_keys->get_next_key(&key_loaded) || key_loaded == nullptr ||
           key_loaded->is_key_valid() == false ||
           store_key_in_hash(key_loaded)) {
+#ifdef WITH_WSREP
             if (forceKeysFetch) {
               continue;
             }
+#endif
             break;
       }
       system_keys_container->store_or_update_if_system_key_with_version(

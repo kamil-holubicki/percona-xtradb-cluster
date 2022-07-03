@@ -1225,7 +1225,7 @@ void wsrep_init_startup(bool sst_first) {
     // initialization and we cannot recover anyway.
     unireg_abort(MYSQLD_ABORT_EXIT);
   }
-  
+
   // This is definitely a hack, but we need to force keyring cache to repopulate
   // after SST, because SST might have add some keys.
   // forceKeysFetch is a weak symbol, so if keyring plugin provides its own
