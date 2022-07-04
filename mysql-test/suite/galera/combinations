@@ -1,2 +1,0 @@
-[data-at-rest-encryption]
-early-plugin-load=keyring_file.so
