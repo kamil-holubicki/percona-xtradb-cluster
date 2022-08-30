@@ -45,9 +45,7 @@ Keys_container::Keys_container(ILogger *logger)
 Keys_container::~Keys_container() {
   if (keyring_io != nullptr) delete keyring_io;
 }
-// KH: add similar method like reload()
-// call load_keys_from_keyring_storage() with force=true;
-// todo: what is system_keys_container?
+
 bool Keys_container::init(IKeyring_io *keyring_io,
                           std::string keyring_storage_url) {
   this->keyring_io = keyring_io;
