@@ -1047,7 +1047,6 @@ MY_NODISCARD static const lock_t *lock_rec_other_has_expl_req(
 }
 #endif /* UNIV_DEBUG */
 
-<<<<<<< HEAD
 #ifdef WITH_WSREP
 static bool
 wsrep_kill_victim(const trx_t * const trx, trx_t *victim_trx) {
@@ -1094,8 +1093,6 @@ wsrep_kill_victim(const trx_t * const trx, trx_t *victim_trx) {
 }
 #endif /* WITH_WSREP */
 
-||||||| merged common ancestors
-=======
 namespace locksys {
 struct Conflicting {
   /** a conflicting lock or null if no conflicting lock found */
@@ -1104,7 +1101,6 @@ struct Conflicting {
   bool bypassed;
 };
 } /*namespace locksys*/
->>>>>>> percona/ps/release-8.0.30-22
 /** Checks if some other transaction has a conflicting explicit lock request
  in the queue, so that we have to wait.
  @param[in]     mode        LOCK_S or LOCK_X, possibly ORed to
@@ -5973,24 +5969,16 @@ dberr_t lock_rec_insert_check_and_lock(
 
       const ulint type_mode = LOCK_X | LOCK_GAP | LOCK_INSERT_INTENTION;
 
-<<<<<<< HEAD
 #ifdef WITH_WSREP
-  if (wsrep_log_conflicts) mutex_enter(&trx_sys->mutex);
+      if (wsrep_log_conflicts) mutex_enter(&trx_sys->mutex);
 #endif /* WITH_WSREP */
 
-  const lock_t *wait_for =
-      lock_rec_other_has_conflicting(type_mode, block, heap_no, trx);
-
-#ifdef WITH_WSREP
-  if (wsrep_log_conflicts) mutex_exit(&trx_sys->mutex);
-#endif /* WITH_WSREP */
-||||||| merged common ancestors
-      const lock_t *wait_for =
-          lock_rec_other_has_conflicting(type_mode, block, heap_no, trx);
-=======
       const auto conflicting =
           lock_rec_other_has_conflicting(type_mode, block, heap_no, trx);
->>>>>>> percona/ps/release-8.0.30-22
+
+#ifdef WITH_WSREP
+      if (wsrep_log_conflicts) mutex_exit(&trx_sys->mutex);
+#endif /* WITH_WSREP */
 
       /* LOCK_INSERT_INTENTION locks can not be allowed to bypass waiting locks,
       because they allow insertion of a record which splits the gap which would

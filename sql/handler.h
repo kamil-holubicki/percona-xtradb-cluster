@@ -2945,21 +2945,17 @@ constexpr const decltype(handlerton::flags) HTON_SUPPORTS_ENGINE_ATTRIBUTE{
 */
 #define HTON_SUPPORTS_COMPRESSED_COLUMNS (1 << 20)
 
-<<<<<<< HEAD
+/** Engine supports Generated invisible primary key. */
+constexpr const decltype(
+    handlerton::flags) HTON_SUPPORTS_GENERATED_INVISIBLE_PK{1 << 21};
+
 #ifdef WITH_WSREP
 /**
   Engine support replication through wsrep-replication provider plugin
 */
-#define HTON_WSREP_REPLICATION (1 << 21)
+#define HTON_WSREP_REPLICATION (1 << 22)
 #endif /* WITH_WSREP */
 
-||||||| merged common ancestors
-=======
-/** Engine supports Generated invisible primary key. */
-constexpr const decltype(
-    handlerton::flags) HTON_SUPPORTS_GENERATED_INVISIBLE_PK{1 << 18};
-
->>>>>>> percona/ps/release-8.0.30-22
 inline bool ddl_is_atomic(const handlerton *hton) {
   return (hton->flags & HTON_SUPPORTS_ATOMIC_DDL) != 0;
 }

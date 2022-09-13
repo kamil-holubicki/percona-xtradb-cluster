@@ -19570,21 +19570,14 @@ static bool check_engine(THD *thd, const char *db_name, const char *table_name,
         ((thd->lex->sql_command == SQLCOM_ALTER_TABLE) &&
          (create_info->used_fields & HA_CREATE_USED_ENGINE) == 0) ||
         (thd->lex->sql_command == SQLCOM_OPTIMIZE) ||
-<<<<<<< HEAD
-#ifdef WITH_WSREP
-        dd::get_dictionary()->is_dd_table_name(db_name, table_name) ||
-        is_wsrep_system_table(db_name, strlen(db_name), table_name,
-                              strlen(table_name));
-#else
-        dd::get_dictionary()->is_dd_table_name(db_name, table_name);
-#endif
-||||||| merged common ancestors
-        dd::get_dictionary()->is_dd_table_name(db_name, table_name);
-=======
         dd::get_dictionary()->is_dd_table_name(db_name, table_name)
         // Allow creation of the new redo log table
         || (strcmp(db_name, "performance_schema") == 0);
->>>>>>> percona/ps/release-8.0.30-22
+
+#ifdef WITH_WSREP
+    enforcement_forbidden |=  is_wsrep_system_table(db_name, strlen(db_name), table_name,
+                              strlen(table_name));
+#endif
 
     if (!enforcement_forbidden) {
       handlerton *enf_engine = ha_enforce_handlerton(thd);

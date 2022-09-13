@@ -3033,19 +3033,11 @@ int UpdateRowsIterator::Read() {
     either from the query's list or via a stored routine: bug#13270,23333
   */
 
-<<<<<<< HEAD
-  if (local_error == 0 ||
-      thd->get_transaction()->cannot_safely_rollback(Transaction_ctx::STMT)) {
+  if (!local_error ||
+      thd()->get_transaction()->cannot_safely_rollback(Transaction_ctx::STMT)) {
 #ifdef WITH_WSREP
     if (WSREP_EMULATE_BINLOG(thd) || mysql_bin_log.is_open()) {
 #else
-||||||| merged common ancestors
-  if (local_error == 0 ||
-      thd->get_transaction()->cannot_safely_rollback(Transaction_ctx::STMT)) {
-=======
-  if (!local_error ||
-      thd()->get_transaction()->cannot_safely_rollback(Transaction_ctx::STMT)) {
->>>>>>> percona/ps/release-8.0.30-22
     if (mysql_bin_log.is_open()) {
 #endif /* WITH_WSREP */
       int errcode = 0;

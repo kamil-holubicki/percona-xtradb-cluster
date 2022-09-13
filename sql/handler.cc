@@ -2095,7 +2095,6 @@ int ha_commit_low(THD *thd, bool all, bool run_after_commit) {
 
   DBUG_TRACE;
 
-<<<<<<< HEAD
 #ifdef WITH_WSREP
   if (thd->run_wsrep_commit_hooks && wsrep_before_commit(thd, all)) {
     thd->run_wsrep_commit_hooks = false;
@@ -2103,12 +2102,7 @@ int ha_commit_low(THD *thd, bool all, bool run_after_commit) {
   }
 #endif /* WITH_WSREP */
 
-  if (ha_info) {
-||||||| merged common ancestors
-  if (ha_info) {
-=======
   if (ha_list) {
->>>>>>> percona/ps/release-8.0.30-22
     bool restore_backup_ha_data = false;
     /*
       At execution of XA COMMIT ONE PHASE binlog or slave applier
@@ -2246,17 +2240,11 @@ int ha_rollback_low(THD *thd, bool all) {
 
   (void)RUN_HOOK(transaction, before_rollback, (thd, all));
 
-<<<<<<< HEAD
 #ifdef WITH_WSREP
   (void)wsrep_before_rollback(thd, all);
 #endif /* WITH_WSREP */
 
-  if (ha_info) {
-||||||| merged common ancestors
-  if (ha_info) {
-=======
   if (ha_list) {
->>>>>>> percona/ps/release-8.0.30-22
     bool restore_backup_ha_data = false;
     /*
       Similarly to the commit case, the binlog or slave applier
@@ -2562,8 +2550,7 @@ int ha_rollback_to_savepoint(THD *thd, SAVEPOINT *sv) {
   ha_list = trn_ctx->ha_trx_info(trx_scope);
   for (auto ha_info = ha_list.begin(); ha_info != sv->ha_list; ++ha_info) {
     int err;
-<<<<<<< HEAD
-    handlerton *ht = ha_info->ht();
+    auto *ht = ha_info->ht();
 
 #ifdef WITH_WSREP
     if (WSREP(thd) && (ht->flags & HTON_WSREP_REPLICATION)) {
@@ -2574,11 +2561,6 @@ int ha_rollback_to_savepoint(THD *thd, SAVEPOINT *sv) {
     }
 #endif /* WITH_WSREP */
 
-||||||| merged common ancestors
-    handlerton *ht = ha_info->ht();
-=======
-    auto ht = ha_info->ht();
->>>>>>> percona/ps/release-8.0.30-22
     if ((err = ht->rollback(ht, thd, !thd->in_sub_stmt))) {  // cannot happen
       char errbuf[MYSQL_ERRMSG_SIZE];
       my_error(ER_ERROR_DURING_ROLLBACK, MYF(0), err,

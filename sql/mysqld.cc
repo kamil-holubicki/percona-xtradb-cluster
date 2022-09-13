@@ -9155,17 +9155,6 @@ int mysqld_main(int argc, char **argv)
     return 1;
   }
 
-  /*
-<<<<<<< HEAD
-    Try to read the previous run's error log and make it available in
-    performance_schema.error_log. Activate all error logging services
-    requested by the user in @@global.log_error_services (now that both
-    the component infrastructure and InnoDB are available), flush the
-    buffered error messages to performance schema and to configured services,
-    and end error log buffering.
-  */
-  if (setup_error_log_components()) unireg_abort(MYSQLD_ABORT_EXIT);
-
 #ifdef WITH_WSREP /* WSREP AFTER SE */
   if (!opt_initialize) {
     wsrep_create_appliers(wsrep_slave_threads - 1);
@@ -9173,19 +9162,6 @@ int mysqld_main(int argc, char **argv)
 #endif /* WITH_WSREP */
 
   /*
-||||||| merged common ancestors
-    Try to read the previous run's error log and make it available in
-    performance_schema.error_log. Activate all error logging services
-    requested by the user in @@global.log_error_services (now that both
-    the component infrastructure and InnoDB are available), flush the
-    buffered error messages to performance schema and to configured services,
-    and end error log buffering.
-  */
-  if (setup_error_log_components()) unireg_abort(MYSQLD_ABORT_EXIT);
-
-  /*
-=======
->>>>>>> percona/ps/release-8.0.30-22
     Invoke the bootstrap thread, if required.
   */
   process_bootstrap();
@@ -11433,7 +11409,8 @@ SHOW_VAR status_vars[] = {
     {"Ssl_session_cache_timeout",
      (char *)&Ssl_mysql_main_status::show_ssl_ctx_sess_timeout, SHOW_FUNC,
      SHOW_SCOPE_GLOBAL},
-<<<<<<< HEAD
+    {"Tls_library_version", (char *)&show_tls_library_version, SHOW_FUNC,
+     SHOW_SCOPE_GLOBAL},
 #ifdef WITH_WSREP
     {"wsrep_connected", (char *)&wsrep_connected, SHOW_BOOL, SHOW_SCOPE_GLOBAL},
     {"wsrep_ready", (char *)&wsrep_show_ready, SHOW_FUNC, SHOW_SCOPE_GLOBAL},
@@ -11463,11 +11440,6 @@ SHOW_VAR status_vars[] = {
      SHOW_CHAR_PTR, SHOW_SCOPE_GLOBAL},
     {"wsrep", (char *)&wsrep_show_status, SHOW_FUNC, SHOW_SCOPE_ALL},
 #endif /* WITH_WSREP */
-||||||| merged common ancestors
-=======
-    {"Tls_library_version", (char *)&show_tls_library_version, SHOW_FUNC,
-     SHOW_SCOPE_GLOBAL},
->>>>>>> percona/ps/release-8.0.30-22
     {NullS, NullS, SHOW_LONG, SHOW_SCOPE_ALL}};
 
 void add_terminator(vector<my_option> *options) {
