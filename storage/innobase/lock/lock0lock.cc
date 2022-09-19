@@ -529,12 +529,12 @@ static inline Conflict rec_lock_check_conflict(const trx_t *trx,
       ib::info() << "*** Lock holder TRANSACTION:";
       wsrep_trx_print_locking(stderr, lock2->trx, 3000);
     }
-    return (false);
+    return Conflict::NO_CONFLICT;
   }
 
   if (wsrep_on(trx->mysql_thd) && !is_hp &&
       trx_is_high_priority(lock2->trx)) {
-    return (true);
+    return Conflict::HAS_TO_WAIT;
   }
 #endif /* WITH_WSREP */
 
@@ -3675,7 +3675,7 @@ static inline lock_t *lock_table_create(
 #endif /* HAVE_PSI_THREAD_INTERFACE */
 
   locksys::add_to_trx_locks(lock);
-
+ 
 #ifdef WITH_WSREP
   if (wsrep_on(trx->mysql_thd)) {
     if (c_lock && wsrep_thd_is_BF(trx->mysql_thd, false)) {
@@ -3698,7 +3698,7 @@ static inline lock_t *lock_table_create(
       lock_grant, which wants to grant trx mutex again */
       /* caller has trx_mutex, have to release for lock cancel */
       trx_mutex_exit(trx);
-      lock_cancel_waiting_and_release(c_lock->trx->lock.wait_lock);
+      lock_cancel_waiting_and_release(c_lock->trx);
       trx_mutex_enter(trx);
 
       /* trx might not wait for c_lock, but some other lock

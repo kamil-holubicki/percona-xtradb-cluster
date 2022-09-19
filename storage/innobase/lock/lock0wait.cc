@@ -777,7 +777,7 @@ static void lock_wait_rollback_deadlock_victim(trx_t *chosen_victim) {
   chosen_victim->lock.was_chosen_as_deadlock_victim = true;
   ut_a(chosen_victim->lock.wait_lock != nullptr);
   ut_a(chosen_victim->lock.que_state == TRX_QUE_LOCK_WAIT);
-  lock_cancel_waiting_and_release(chosen_victim);
+  lock_cancel_waiting_and_release(chosen_victim); 
   trx_mutex_exit(chosen_victim);
 }
 

@@ -3550,7 +3550,7 @@ static bool check_if_option_is_deprecated(int optid,
     @retval  0 Initialization should proceed.
     @retval  1 Plugin is disabled.
     @retval -1 An error has occurred.
-*/
+*/ 
 static int test_plugin_options(
     MEM_ROOT *tmp_root, st_plugin_int *tmp, int *argc, char **argv,
     const std::optional<enum_plugin_load_option> force_load_option) {
@@ -3597,7 +3597,7 @@ static int test_plugin_options(
   if (wsrep_provider_set &&
       !(my_strcasecmp(&my_charset_latin1, tmp->name.str, "keyring_file") &&
         my_strcasecmp(&my_charset_latin1, tmp->name.str, "keyring_vault")))
-    plugin_load_option = PLUGIN_FORCE;
+    tmp->load_option = PLUGIN_FORCE;
 #endif /* WITH_WSREP */
 
   for (opt = tmp->plugin->system_vars; opt && *opt; opt++)

@@ -2930,7 +2930,7 @@ int UpdateRowsIterator::Read() {
   if (!local_error ||
       thd()->get_transaction()->cannot_safely_rollback(Transaction_ctx::STMT)) {
 #ifdef WITH_WSREP
-    if (WSREP_EMULATE_BINLOG(thd) || mysql_bin_log.is_open()) {
+    if (WSREP_EMULATE_BINLOG(thd()) || mysql_bin_log.is_open()) {
 #else
     if (mysql_bin_log.is_open()) {
 #endif /* WITH_WSREP */

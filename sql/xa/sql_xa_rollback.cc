@@ -32,6 +32,10 @@
 #include "sql/transaction.h"  // trans_reset_one_shot_chistics, trans_track_end_trx
 #include "sql/transaction_info.h"  // Transaction_ctx
 
+#ifdef WITH_WSREP
+#include "sql/wsrep_mysqld.h"  // WSREP_DEBUG
+#endif
+
 Sql_cmd_xa_rollback::Sql_cmd_xa_rollback(xid_t *xid_arg)
     : Sql_cmd_xa_second_phase{xid_arg} {}
 

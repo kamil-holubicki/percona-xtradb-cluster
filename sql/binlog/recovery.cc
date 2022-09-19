@@ -26,6 +26,10 @@
 #include "sql/raii/sentry.h"             // raii::Sentry<>
 #include "sql/xa/xid_extract.h"          // xa::XID_extractor
 
+#ifdef WITH_WSREP
+#include "sql/wsrep_mysqld.h"  // WSREP_DEBUG
+#endif
+
 binlog::Binlog_recovery::Binlog_recovery(Binlog_file_reader &binlog_file_reader)
     : m_reader{binlog_file_reader},
       m_mem_root{key_memory_binlog_recover_exec,

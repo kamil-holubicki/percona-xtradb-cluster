@@ -1115,11 +1115,11 @@ static inline void lock_wait_mutex_enter() {
 static inline void lock_wait_mutex_exit() { lock_sys->wait_mutex.exit(); }
 
 #ifdef WITH_WSREP
-
+ 
 /** Cancels a waiting lock request and releases possible other transactions
 waiting behind it.
 @param[in,out]  lock            Waiting lock request */
-void lock_cancel_waiting_and_release(lock_t *lock);
+void lock_cancel_waiting_and_release(trx_t *trx);
 #endif /* WITH_WSREP */
 
 #include "lock0lock.ic"

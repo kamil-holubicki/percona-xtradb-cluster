@@ -7146,10 +7146,10 @@ wsrep_restart_point :
         (rli->get_require_table_primary_key_check() ==
          Relay_log_info::PK_CHECK_ON);
 
-    // Replicas shall not create GIPKs if source tables have no PKs
-    thd->variables.sql_generate_invisible_primary_key = false;
+  // Replicas shall not create GIPKs if source tables have no PKs
+  thd->variables.sql_generate_invisible_primary_key = false;
 
-    rli->transaction_parser.reset();
+  rli->transaction_parser.reset();
 
   thd_manager->add_thd(thd);
   thd_added = true;

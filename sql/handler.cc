@@ -2391,6 +2391,7 @@ int ha_prepare_low(THD *thd, bool all) {
 
 #ifdef WITH_WSREP
       const bool run_wsrep_hooks = wsrep_run_commit_hook(thd, all);
+      int err;
 
       if (run_wsrep_hooks && (ht->flags & HTON_WSREP_REPLICATION) &&
           (err = wsrep_before_prepare(thd, all))) {
@@ -2420,7 +2421,7 @@ int ha_prepare_low(THD *thd, bool all) {
       /* core-prepare logic is no more affected by the pxc error.
       pxc replication and certification is now take care above as part of
       wsrep_before_prepare. */
-      int err = ht->prepare(ht, thd, all);
+      err = ht->prepare(ht, thd, all);
       if (err) {
         if (!thd_holds_xa_transaction(
                 thd)) {  // If XA PREPARE, let error be handled by caller

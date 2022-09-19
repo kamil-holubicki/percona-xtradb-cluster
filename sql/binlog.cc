@@ -12386,8 +12386,8 @@ TC_LOG::enum_result wsrep_thd_binlog_commit(THD *thd, bool all) {
     if (all) {
       CONDITIONAL_SYNC_POINT_FOR_TIMESTAMP("before_commit_in_tc");
     }
-    return trx_coordinator::commit_in_engines(thd, all) ? RESULT_ABORTED
-                                                        : RESULT_SUCCESS;
+    return trx_coordinator::commit_in_engines(thd, all) ? TC_LOG::RESULT_ABORTED
+                                                        : TC_LOG::RESULT_SUCCESS;
   }
 }
 

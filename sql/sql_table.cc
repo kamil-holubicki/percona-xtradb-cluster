@@ -11001,7 +11001,8 @@ bool mysql_create_like_table(THD *thd, TABLE_LIST *table, TABLE_LIST *src_table,
       String query(buf, sizeof(buf), system_charset_info);
       query.length(0);  // Have to zero it since constructor doesn't
 
-      (void)store_create_info(thd, &tbl, &query, NULL, true);
+      (void)store_create_info(thd, &tbl, &query, NULL, true /* show_database */,
+                             false /* SHOW CREATE TABLE */);
       WSREP_DEBUG(
           "Initiating creation of temporary table to satisfy"
           " CREATE TABLE LIKE : %s",
