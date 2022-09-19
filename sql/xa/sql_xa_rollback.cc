@@ -44,6 +44,9 @@ bool Sql_cmd_xa_rollback::execute(THD *thd) {
 
   if (!st) {
     thd->mdl_context.release_transactional_locks();
+#ifdef WITH_WSREP
+    WSREP_DEBUG("XA rollback failed, MDL released: %u", thd->thread_id());
+#endif /* WITH_WSREP */
     /*
       We've just done a rollback, reset transaction
       isolation level and access mode to the session default.
