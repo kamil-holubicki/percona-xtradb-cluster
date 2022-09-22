@@ -2274,7 +2274,7 @@ void lock_make_trx_hit_list(trx_t *hp_trx, hit_list_t &hit_list) {
 #ifdef WITH_WSREP  // KH: My brain hurts! Is it OK?
           if ((!trx_is_high_priority(trx) || !wsrep_thd_order_before(trx->mysql_thd, hp_trx->mysql_thd)) &&
               (trx->in_innodb & TRX_FORCE_ROLLBACK) == 0 &&
-              (trx_is_wsrep_trx(trx) || trx->in_innodb & TRX_FORCE_ROLLBACK_DISABLE) == 0 &&
+              (trx_is_wsrep_trx(trx) || (trx->in_innodb & TRX_FORCE_ROLLBACK_DISABLE) == 0) &&
               !trx->abort) {
             if (wsrep_kill_victim(hp_trx, trx)) {
                 if (wsrep_debug)
