@@ -1803,13 +1803,17 @@ bool log_slow_applicable(THD *thd, int sp_sql_command) {
       (unlikely(thd->get_stmt_da()->mysql_errno() == ER_PARSE_ERROR)))
     return false;
 
+  /* Log queries failing with predefined error */
+  bool warn_failed_query =
+      thd->is_error() && thd->variables.log_query_errors.check_error_set(
+                             thd->get_stmt_da()->mysql_errno());
   bool warn_no_index =
       ((thd->server_status &
         (SERVER_QUERY_NO_INDEX_USED | SERVER_QUERY_NO_GOOD_INDEX_USED)) &&
        opt_log_queries_not_using_indexes &&
        !(sql_command_flags[thd->lex->sql_command] & CF_STATUS_COMMAND));
   bool log_this_query =
-      ((thd->server_status & SERVER_QUERY_WAS_SLOW) || warn_no_index) &&
+      ((thd->server_status & SERVER_QUERY_WAS_SLOW) || warn_no_index || warn_failed_query) &&
       (thd->get_examined_row_count() >= thd->variables.min_examined_row_limit);
 
   // The docs say slow queries must be counted even when the log is off.
@@ -1886,10 +1890,6 @@ bool log_slow_applicable(THD *thd, int sp_sql_command) {
 	  return false;
   }
 
-  /* Log queries failing with predefined error */
-  bool warn_failed_query =
-      thd->is_error() && thd->variables.log_query_errors.check_error_set(
-                             thd->get_stmt_da()->mysql_errno());
   bool suppress_logging =
       log_throttle_qni.log(thd, warn_no_index && warn_failed_query);
 
