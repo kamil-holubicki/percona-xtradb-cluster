@@ -718,6 +718,7 @@ bool File_query_log::write_slow(THD *thd, ulonglong current_utime,
   size_t buff_len;
   end = buff;
 
+
   mysql_mutex_lock(&LOCK_log);
   assert(is_open());
 
@@ -1444,7 +1445,9 @@ bool Query_logger::slow_log_write(THD *thd, const char *query,
                                   ulonglong exec_usec) {
   assert(thd->enable_slow_log);
 
+
   if (!(*slow_log_handler_list)) return false;
+
 
   /* do not log slow queries from replication threads */
   if (thd->slave_thread && !opt_log_slow_replica_statements) return false;
@@ -1803,6 +1806,9 @@ bool log_slow_applicable(THD *thd, int sp_sql_command) {
       (unlikely(thd->get_stmt_da()->mysql_errno() == ER_PARSE_ERROR)))
     return false;
 
+  /* Collect query exec time as the first step. */
+  ulonglong query_exec_time = get_query_exec_time(thd);
+
   /* Log queries failing with predefined error */
   bool warn_failed_query =
       thd->is_error() && thd->variables.log_query_errors.check_error_set(
@@ -1824,9 +1830,6 @@ bool log_slow_applicable(THD *thd, int sp_sql_command) {
     set.
   */
   if (!thd->enable_slow_log || !opt_slow_log) return false;
-
-  /* Collect query exec time as the first step. */
-  ulonglong query_exec_time = get_query_exec_time(thd);
 
   /*
     Copy all needed global variables into a session one before doing all checks.
@@ -1890,9 +1893,11 @@ bool log_slow_applicable(THD *thd, int sp_sql_command) {
 	  return false;
   }
 
+
   bool suppress_logging =
       log_throttle_qni.log(thd, warn_no_index && warn_failed_query);
 
+  
   if (!suppress_logging && log_this_query) return true;
 
   return false;

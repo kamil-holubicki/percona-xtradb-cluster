@@ -968,7 +968,8 @@ static bool check_and_create_compression_dict_tables(THD *thd) {
     uint64 comp_table_id = comp_table_def->se_private_id();
     uint64 comp_cols_table_id = comp_cols_table_def->se_private_id();
     uint64 view_table_id = view_table_def->se_private_id();
-
+// KH:
+// return false;
     if (comp_table_id == view_table_id + 1 &&
         (comp_cols_table_id == view_table_id + 2)) {
       return false;
@@ -992,6 +993,7 @@ static bool check_and_create_compression_dict_tables(THD *thd) {
 
   DBUG_EXECUTE_IF("skip_compression_dict_fix", fix_table_ids = false;);
 
+  fix_table_ids = false;
   if (fix_table_ids) {
     dd::Table *comp_dict = nullptr;
     if (thd->dd_client()->acquire_for_modification(
@@ -1002,9 +1004,11 @@ static bool check_and_create_compression_dict_tables(THD *thd) {
     if (thd->dd_client()->acquire_for_modification(
             "mysql", "compression_dictionary_cols", &comp_cols_dict)) {
     }
-
+ 
     comp_dict->set_se_private_id(view_table_def->se_private_id() + 1);
     comp_cols_dict->set_se_private_id(comp_dict->se_private_id() + 1);
+    fprintf(stderr, "KH: fix applied. comp_dict: %lld, comp_cols_dict: %lld\n",
+      comp_dict->se_private_id(), comp_cols_dict->se_private_id());
 
     if (thd->dd_client()->update<dd::Table>(comp_dict)) {
       return true;
