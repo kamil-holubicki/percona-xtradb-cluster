@@ -532,7 +532,10 @@ static inline Conflict rec_lock_check_conflict(const trx_t *trx,
     return Conflict::NO_CONFLICT;
   }
 
-  if (wsrep_on(trx->mysql_thd) && !is_hp &&
+  /* If any of the transaction is NBO, let standard logic make decision,
+     as they can coexist. */
+  bool nbo = wsrep_thd_is_in_nbo(trx->mysql_thd) || wsrep_thd_is_in_nbo(lock2->trx->mysql_thd);
+  if (!nbo && wsrep_on(trx->mysql_thd) && !is_hp &&
       trx_is_high_priority(lock2->trx)) {
     return Conflict::HAS_TO_WAIT;
   }
