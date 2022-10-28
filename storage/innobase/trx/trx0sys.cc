@@ -471,7 +471,10 @@ void trx_sys_update_wsrep_checkpoint(
         the same xid_seqno.
         Allow current and new values be the same, without introducing new flags
         and logic to prevent double storing of the same value */
-        ut_ad(xid_seqno >= trx_sys_cur_xid_seqno);
+       // KH: ut_ad(xid_seqno >= trx_sys_cur_xid_seqno);
+        if (xid_seqno < trx_sys_cur_xid_seqno) {
+          fprintf(stderr, "KH: %lld < %lld\n", xid_seqno, trx_sys_cur_xid_seqno);
+        }
         trx_sys_cur_xid_seqno = xid_seqno;
 
         /* Mark as done */
