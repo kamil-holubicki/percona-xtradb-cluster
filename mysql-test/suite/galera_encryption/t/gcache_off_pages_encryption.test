@@ -3,6 +3,7 @@
 #
 
 --source include/galera_cluster.inc
+--source include/force_restart.inc
 
 --connection node_2
 
@@ -68,7 +69,3 @@ while ($cnt)
 
 # cleanup
 DROP DATABASE test2;
-
---let $do_not_echo_parameters = 1
---let $restart_parameters = restart:
---source include/restart_mysqld.inc
