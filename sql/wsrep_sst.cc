@@ -769,7 +769,10 @@ std::string wsrep_sst_prepare() {
   const char *method;
 
   if (!strcmp(wsrep_sst_method, WSREP_SST_SKIP)) {
+    // KH:
+    wsrep_sst_complete(current_thd, 0);
     return WSREP_STATE_TRANSFER_TRIVIAL;
+    //return WSREP_STATE_TRANSFER_NONE;
   }
 
   // Figure out SST address. Common for all SST methods

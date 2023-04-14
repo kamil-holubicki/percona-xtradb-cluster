@@ -35,6 +35,7 @@
 
 #include <sstream>
 #include <string>
+#include <sql/raii/sentry.h>
 
 #define WSREP_SCHEMA "mysql"
 #define WSREP_STREAMING_TABLE "wsrep_streaming_log"
@@ -700,6 +701,11 @@ Wsrep_view Wsrep_schema::restore_view(THD *thd, const Wsrep_id &own_id) const {
   // we don't want causal waits for reading non-replicated private data
   int const wsrep_sync_wait_saved = thd->variables.wsrep_sync_wait;
   thd->variables.wsrep_sync_wait = 0;
+
+  bool ro = thd->tx_read_only;
+  raii::Sentry<> trx_ro_guard{[ro, &thd]() {
+    thd->tx_read_only = ro;
+  }};
 
   if (trans_begin(thd, MYSQL_START_TRANS_OPT_READ_ONLY)) {
     WSREP_ERROR("wsrep_schema::restore_view(): Failed to start transaction");
