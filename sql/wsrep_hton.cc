@@ -45,6 +45,11 @@ void wsrep_cleanup_transaction(THD *thd)
   assert(thd->wsrep_conflict_state != MUST_REPLAY &&
          thd->wsrep_conflict_state != REPLAYING);
 
+  DBUG_EXECUTE_IF("wsrep_delay_cleanup", {
+    fprintf(stderr, "KH: sleep >>>\n");
+    sleep(30);
+    fprintf(stderr, "KH: sleep <<<\n");
+  });
   if (wsrep_emulate_bin_log) wsrep_thd_binlog_trx_reset(thd);
   thd->wsrep_ws_handle.trx_id= WSREP_UNDEFINED_TRX_ID;
   thd->wsrep_trx_meta.gtid= WSREP_GTID_UNDEFINED;
