@@ -249,6 +249,7 @@ fi
 
 source "$SOURCEDIR/MYSQL_VERSION"
 MYSQL_VERSION="$MYSQL_VERSION_MAJOR.$MYSQL_VERSION_MINOR.$MYSQL_VERSION_PATCH"
+<<<<<<< HEAD
 PERCONA_SERVER_EXTENSION="$(echo $MYSQL_VERSION_EXTRA | sed 's/^-//')"
 PS_VERSION="$MYSQL_VERSION-$PERCONA_SERVER_EXTENSION"
 
@@ -267,23 +268,43 @@ if [[ $COPYGALERA -eq 0 ]];then
 		GALERA_REVISION="0000000"
 	fi
 fi
+||||||| ddc5db250eb
+PERCONA_SERVER_VERSION="$(echo $MYSQL_VERSION_EXTRA | sed 's/^-//')"
+PRODUCT="Percona-Server-$MYSQL_VERSION-$PERCONA_SERVER_VERSION"
+=======
+PERCONA_SERVER_VERSION="${MYSQL_VERSION_EXTRA/-/}"
+PRODUCT="Percona-Server-$MYSQL_VERSION-$PERCONA_SERVER_VERSION"
+>>>>>>> ps/release-8.0.33-25
 TOKUDB_BACKUP_VERSION="${MYSQL_VERSION}${MYSQL_VERSION_EXTRA}"
 
+<<<<<<< HEAD
 RELEASE_TAG=''
 PRODUCT_NAME="Percona-XtraDB-Cluster_$MYSQL_VERSION$MYSQL_VERSION_EXTRA"
 PRODUCT_FULL_NAME="${PRODUCT_NAME}.${TAG}_$(uname -s)${DIST_NAME:-}.$MACHINE_SPECS${GLIBC_VER:-}${TARBALL_SUFFIX:-}"
 
 #
 # This corresponds to GIT revision when the build/package is created.
+||||||| ddc5db250eb
+# Build information
+=======
+# Build information
+REVISION=""
+>>>>>>> ps/release-8.0.33-25
 if test -e "$SOURCEDIR/Docs/INFO_SRC"
 then
     REVISION="$(cd "$SOURCEDIR"; grep '^commit: ' Docs/INFO_SRC |sed -e 's/commit: //')"
+<<<<<<< HEAD
     REVISION=${REVISION::7}
 elif [ -n "$(which git)" -a -d "$SOURCEDIR/.git" ];
+||||||| ddc5db250eb
+    REVISION=${REVISION::8}
+elif [ -n "$(which git)" -a -d "$SOURCEDIR/.git" ];
+=======
+    REVISION=${REVISION::8}
+elif [ -n "$(command -v git)" -a -d "$SOURCEDIR/.git" ];
+>>>>>>> ps/release-8.0.33-25
 then
     REVISION="$(git rev-parse --short HEAD)"
-else
-    REVISION=""
 fi
 PRODUCT_FULL="Percona-XtraDB-Cluster_${MYSQL_VERSION}${MYSQL_VERSION_EXTRA}"
 PRODUCT_FULL="${PRODUCT_FULL}.${TAG}${BUILD_COMMENT:+_}${BUILD_COMMENT}$(uname -s)${DIST_NAME:-}.$TARGET${GLIBC_VER:-}"
@@ -308,9 +329,91 @@ if [[ $ENABLE_ASAN -eq 1 ]]; then
         fi
     fi
 fi
+<<<<<<< HEAD
 COMMON_FLAGS="-DPERCONA_INNODB_VERSION=$PERCONA_SERVER_EXTENSION"
 export CFLAGS=" $COMMON_FLAGS -static-libgcc $MACHINE_SPECS_CFLAGS ${CFLAGS:-}"
 export CXXFLAGS=" $COMMON_FLAGS $MACHINE_SPECS_CFLAGS ${CXXFLAGS:-}"
+||||||| ddc5db250eb
+
+# TokuDB cmake flags
+if test -d "$SOURCEDIR/storage/tokudb"
+then
+    CMAKE_OPTS="${CMAKE_OPTS:-} -DBUILD_TESTING=OFF -DUSE_GTAGS=OFF -DUSE_CTAGS=OFF -DUSE_ETAGS=OFF -DUSE_CSCOPE=OFF -DTOKUDB_BACKUP_PLUGIN_VERSION=${TOKUDB_BACKUP_VERSION}"
+
+    if test "x$CMAKE_BUILD_TYPE" != "xDebug"
+    then
+        CMAKE_OPTS="${CMAKE_OPTS:-} -DTOKU_DEBUG_PARANOID=OFF"
+    else
+        CMAKE_OPTS="${CMAKE_OPTS:-} -DTOKU_DEBUG_PARANOID=ON"
+    fi
+
+    if [[ $CMAKE_OPTS == *WITH_VALGRIND=ON* ]]
+    then
+        CMAKE_OPTS="${CMAKE_OPTS:-} -DUSE_VALGRIND=ON"
+    fi
+fi
+#
+# Attempt to remove any optimisation flags from the debug build
+# BLD-238 - bug1408232
+if [ -n "$(which rpm)" ]; then
+  export COMMON_FLAGS=$(rpm --eval %optflags | sed -e "s|march=i386|march=i686|g")
+  if test "x$CMAKE_BUILD_TYPE" = "xDebug"
+  then
+    COMMON_FLAGS=`echo " ${COMMON_FLAGS} " | \
+              sed -e 's/ -O[0-9]* / /' \
+                  -e 's/-Wp,-D_FORTIFY_SOURCE=2/ /' \
+                  -e 's/ -unroll2 / /' \
+                  -e 's/ -ip / /' \
+                  -e 's/^ //' \
+                  -e 's/ $//'`
+  fi
+fi
+#
+export COMMON_FLAGS="$COMMON_FLAGS -DPERCONA_INNODB_VERSION=$PERCONA_SERVER_VERSION"
+export CFLAGS="$COMMON_FLAGS ${CFLAGS:-}"
+export CXXFLAGS="$COMMON_FLAGS ${CXXFLAGS:-}"
+#
+=======
+
+# TokuDB cmake flags
+if test -d "$SOURCEDIR/storage/tokudb"
+then
+    CMAKE_OPTS="${CMAKE_OPTS:-} -DBUILD_TESTING=OFF -DUSE_GTAGS=OFF -DUSE_CTAGS=OFF -DUSE_ETAGS=OFF -DUSE_CSCOPE=OFF -DTOKUDB_BACKUP_PLUGIN_VERSION=${TOKUDB_BACKUP_VERSION}"
+
+    if test "x$CMAKE_BUILD_TYPE" != "xDebug"
+    then
+        CMAKE_OPTS="${CMAKE_OPTS:-} -DTOKU_DEBUG_PARANOID=OFF"
+    else
+        CMAKE_OPTS="${CMAKE_OPTS:-} -DTOKU_DEBUG_PARANOID=ON"
+    fi
+
+    if [[ $CMAKE_OPTS == *WITH_VALGRIND=ON* ]]
+    then
+        CMAKE_OPTS="${CMAKE_OPTS:-} -DUSE_VALGRIND=ON"
+    fi
+fi
+#
+# Attempt to remove any optimisation flags from the debug build
+# BLD-238 - bug1408232
+if [ -n "$(command -v rpm)" ]; then
+  export COMMON_FLAGS=$(rpm --eval %optflags | sed -e "s|march=i386|march=i686|g")
+  if test "x$CMAKE_BUILD_TYPE" = "xDebug"
+  then
+    COMMON_FLAGS=`echo " ${COMMON_FLAGS} " | \
+              sed -e 's/ -O[0-9]* / /' \
+                  -e 's/-Wp,-D_FORTIFY_SOURCE=2/ /' \
+                  -e 's/ -unroll2 / /' \
+                  -e 's/ -ip / /' \
+                  -e 's/^ //' \
+                  -e 's/ $//'`
+  fi
+fi
+#
+export COMMON_FLAGS="$COMMON_FLAGS -DPERCONA_INNODB_VERSION=$PERCONA_SERVER_VERSION"
+export CFLAGS="$COMMON_FLAGS ${CFLAGS:-}"
+export CXXFLAGS="$COMMON_FLAGS ${CXXFLAGS:-}"
+#
+>>>>>>> ps/release-8.0.33-25
 export MAKE_JFLAG="${MAKE_JFLAG:--j$PROCESSORS}"
 
 #

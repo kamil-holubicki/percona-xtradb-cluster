@@ -154,5 +154,22 @@ doctest:
 	$(SPHINXBUILD) -b doctest $(ALLSPHINXOPTS) $(BUILDDIR)/doctest
 	@echo "Testing of doctests in the sources finished, look at the " \
 	      "results in $(BUILDDIR)/doctest/output.txt."
+<<<<<<< HEAD
 
 
+||||||| ddc5db250eb
+		  
+thtml:
+	@echo "Building themed html doc"
+	$(SPHINXBUILD) -D html_theme=alabaster -D html_theme_path='' -b html $(ALLSPHINXOPTS) $(BUILDDIR)/html
+	@echo
+	@echo "Build finished. The HTML pages are in $(BUILDDIR)/html."
+
+livehtml:
+	sphinx-autobuild $(ALLSPHINXOPTS) $(BUILDDIR) $(O)
+
+livethtml:
+	sphinx-autobuild -D html_theme=alabaster -D html_theme_path='' $(ALLSPHINXOPTS) $(BUILDDIR) $(O)
+=======
+		  
+>>>>>>> ps/release-8.0.33-25
