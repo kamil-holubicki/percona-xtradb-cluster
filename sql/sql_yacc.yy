@@ -15756,6 +15756,7 @@ ident_keywords_unambiguous:
         | SECONDARY_UNLOAD_SYM
         | SECOND_SYM
         | SECURITY_SYM
+        | SEQUENCE_TABLE_SYM %prec KEYWORD_USED_AS_IDENT
         | SERIALIZABLE_SYM
         | SERIAL_SYM
         | SERVER_SYM
