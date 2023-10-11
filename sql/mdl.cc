@@ -2570,6 +2570,8 @@ bool MDL_lock::can_grant_lock(enum_mdl_type type_arg,
                 WSREP_INFO(
                     "MDL conflict db=%s table=%s ticket=%d solved by abort",
                     key->db_name(), key->name(), ticket->get_type());
+                assert(0);
+                abort();
               }
             } else {
               can_grant = true;
