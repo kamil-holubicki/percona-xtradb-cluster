@@ -681,7 +681,7 @@ int Wsrep_applier_service::apply_write_set(const wsrep::ws_meta &ws_meta,
 PSI_thread_key key_nbo_thread;
 
 static PSI_thread_info nbo_threads[] = {
-    {&key_nbo_thread, "NBO update thread", "NBO_upd", 0, 0, PSI_DOCUMENT_ME}};
+    {&key_nbo_thread, "NBO update thread", "NBO_upd", PSI_FLAG_THREAD_SYSTEM, 0, PSI_DOCUMENT_ME}};
 
 int Wsrep_applier_service::apply_nbo_begin(const wsrep::ws_meta &ws_meta,
                                            const wsrep::const_buffer &data,
@@ -724,6 +724,7 @@ int Wsrep_applier_service::apply_nbo_begin(const wsrep::ws_meta &ws_meta,
     replayer_thd->set_psi(psi);
     PSI_THREAD_CALL(set_thread)(psi);
     PSI_THREAD_CALL(set_thread_os_id)(psi);
+    PSI_THREAD_CALL(set_thread_account)("root", strlen("root"), nullptr, 0);
     assert(psi != nullptr);
 #endif
     replayer_thd->store_globals();
