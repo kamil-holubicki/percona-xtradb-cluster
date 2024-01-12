@@ -6118,7 +6118,7 @@ finish:
   */
   bool thd_needs_da_restore = false;
   Diagnostics_area tmp_da(true);
-
+  bool finish_toi = true;
   if (WSREP(thd) && wsrep_thd_is_in_to_isolation(thd, false)) {
     Reprepare_observer *reprepare_observer = thd->get_reprepare_observer();
     if (reprepare_observer != nullptr && reprepare_observer->is_invalidated()) {
@@ -6127,11 +6127,15 @@ finish:
       if (reprepare_observer->can_retry()) {
         thd->push_diagnostics_area(&tmp_da, false);
         thd_needs_da_restore = true;
+        finish_toi = false;
       }
     }
   }
   thd->wsrep_consistency_check = NO_CONSISTENCY_CHECK;
-  WSREP_TO_ISOLATION_END;
+  if (finish_toi) {
+    WSREP_TO_ISOLATION_END;  // KH: here toi end
+    thd->wsrep_prepared_statement_TOI_started = false;
+  }
 
   if (thd_needs_da_restore) {
     thd->pop_diagnostics_area();
