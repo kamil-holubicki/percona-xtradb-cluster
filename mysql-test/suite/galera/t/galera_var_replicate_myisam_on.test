@@ -216,6 +216,8 @@ drop table is1;
 # with OSU method = RSU
 --connection node_1
 --echo #node-1
+CALL mtr.add_suppression("The statement was neither written to the binary log nor any GTID was generated as the statement was executed with wsrep_OSU_method = RSU.");
+
 set @@global.wsrep_OSU_method="RSU";
 set @@session.wsrep_OSU_method="RSU";
 select @@global.wsrep_OSU_method;
