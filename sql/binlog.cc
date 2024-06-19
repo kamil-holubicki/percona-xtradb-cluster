@@ -8959,7 +8959,6 @@ TC_LOG::enum_result MYSQL_BIN_LOG::commit(THD *thd, bool all) {
       return RESULT_ABORTED;
     }
 
-<<<<<<< HEAD
 #ifdef WITH_WSREP
     int error;
     const bool run_wsrep_hooks = wsrep_run_commit_hook(thd, all);
@@ -8998,24 +8997,18 @@ TC_LOG::enum_result MYSQL_BIN_LOG::commit(THD *thd, bool all) {
     }
 
     thd->run_wsrep_ordered_commit = false;
+
+    if (DBUG_EVALUATE_IF("simulate_xa_commit_log_inconsistency", true, false) ||
+        rc) {
 #else
-    int rc = ordered_commit(thd, all, skip_commit);
-#endif /* WITH_WSREP */
-
-    if (rc) return RESULT_INCONSISTENT;
-||||||| merged common ancestors
-    int rc = ordered_commit(thd, all, skip_commit);
-
-    if (rc) return RESULT_INCONSISTENT;
-=======
     if (DBUG_EVALUATE_IF("simulate_xa_commit_log_inconsistency", true, false) ||
         ordered_commit(thd, all, skip_commit)) {
+#endif /* WITH_WSREP */
       thd_get_cache_mngr(thd)->reset();
       if (thd->get_stmt_da()->is_ok())
         thd->get_stmt_da()->reset_diagnostics_area();
       return RESULT_INCONSISTENT;
     }
->>>>>>> ps/release-8.4.0-1
 
     DBUG_EXECUTE_IF("ensure_binlog_cache_is_reset", {
       /* Assert that binlog cache is reset at commit time. */

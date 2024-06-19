@@ -35,21 +35,7 @@ use My::Find;
 use My::Platform;
 
 # Rules to run first of all
-
-sub add_opt_values {
-  my ($self, $config)= @_;
-
-  # add auto-options
-  $config->insert('OPT', 'port'   => sub { fix_port($self, $config) });
-#  $config->insert('OPT', 'vardir' => sub { $self->{ARGS}->{vardir} });
-  $config->insert('mysqld', "loose-skip-plugin-$_" => undef) for (@::optional_plugins);
-}
-
-my @pre_rules=
-(
-  \&add_opt_values,
-  \&pre_check_no_hosts_in_cluster_config
-);
+my @pre_rules = (\&pre_check_no_hosts_in_cluster_config);
 
 sub get_basedir {
   my ($self, $group) = @_;
@@ -111,16 +97,22 @@ sub fix_pidfile {
 
 sub fix_port {
   my ($self, $config, $group_name, $group)= @_;
+# ---- if !WITH_WSREP
   #my $hostname = $group->value('#host');
   #return $self->{HOSTS}->{$hostname}++;
+# ---- else
   return $self->{PORT}++;
+# ---- endif
 }
 
 sub fix_admin_port {
   my ($self, $config, $group_name, $group) = @_;
+# ---- if !WITH_WSREP
   #my $hostname = $group->value('#host');
   #return $self->{HOSTS}->{$hostname}++;
+# ---- else
   return $self->{PORT}++;
+# ---- endif
 }
 
 sub fix_x_port {
@@ -130,11 +122,14 @@ sub fix_x_port {
 
 sub fix_host {
   my ($self) = @_;
+# ---- if !WITH_WSREP
 #  # Get next host from HOSTS array
 #  my @hosts   = keys(%{ $self->{HOSTS} });
 #  my $host_no = $self->{NEXT_HOST}++ % @hosts;
 #  return $hosts[$host_no];
+# ---- else
   'localhost'
+# ---- endif
 }
 
 sub fix_cpubind {
@@ -263,6 +258,7 @@ sub fix_log_slow_queries {
   return "$dir/mysqld-slow.log";
 }
 
+# ---- if !WITH_WSREP
 #sub fix_secure_file_priv {
 #  my ($self) = @_;
 #  my $vardir = $self->{ARGS}->{vardir};
@@ -271,6 +267,7 @@ sub fix_log_slow_queries {
 #  # outside of vardir.
 #  return $vardir;
 #}
+# ---- endif
 
 sub fix_std_data {
   my ($self, $config, $group_name, $group) = @_;
@@ -334,6 +331,7 @@ my @mysqld_rules = (
   { 'character-sets-dir'                           => \&fix_charset_dir },
   { 'datadir'                                      => \&fix_datadir },
   { 'port'                                         => \&fix_port },
+# ---- if WITH_WSREP
   # Galera base_port and port used during SST
   { '#galera_port'                                 => \&fix_port },
   # Galera uses base_port + 1 for IST, so we do not use it for things such as SST
@@ -341,6 +339,7 @@ my @mysqld_rules = (
   { '#sst_port'                                    => \&fix_port },
   # Reserve a port for group_replication
   { '#group_replication_port'                      => \&fix_port },
+# ---- endif
   { 'admin-port'                                   => \&fix_admin_port },
   { 'bind-address'                                 => \&fix_bind_address },
   { 'general_log'                                  => \&fix_general_log },
@@ -354,9 +353,11 @@ my @mysqld_rules = (
   { 'loose-mysqlx-ssl-key'                         => "" },
   { 'pid-file'                                     => \&fix_pidfile },
   { 'server-id'                                    => \&fix_server_id, },
+# ---- if WITH_WSREP
   { 'plugin-dir'                                   => sub { $::plugindir } },
   { 'general_log'                                  => 1 },
   { 'general-log-file'                             => \&fix_log },
+# ---- endif
   { 'slow_query_log'                               => \&fix_slow_query_log },
   { 'slow_query_log_file'                          => \&fix_log_slow_queries },
   { 'socket'                                       => \&fix_socket },
@@ -390,8 +391,11 @@ if (IS_WINDOWS) {
 sub fix_ndb_mgmd_port {
   my ($self, $config, $group_name, $group) = @_;
   my $hostname = $group->value('HostName');
+# ---- if !WITH_WSREP
 # return $self->{HOSTS}->{$hostname}++;
+# ---- else
   return $self->{PORT}++;
+# ---- endif
 }
 
 sub fix_cluster_dir {
@@ -530,43 +534,38 @@ sub post_check_client_groups {
 }
 
 sub resolve_at_variable {
-  my ($self, $config, $group, $option, $worker) = @_;
-  local $_ = $option->value();
-  my ($res, $after);
+  my ($self, $config, $group, $option) = @_;
 
-  while (m/(.*?)\@((?:\w+\.)+)(#?[-\w]+)/g) {
-    my ($before, $group_name, $option_name)= ($1, $2, $3);
-    $after = $';
-    chop($group_name);
+  # Split the options value on last '.'
+  my @parts       = split(/\./, $option->value());
+  my $option_name = pop(@parts);
+  my $group_name  = join('.', @parts);
 
-    $group_name =~ s/^\@//; # Remove at
-    my $value;
+  # Remove '@'
+  $group_name =~ s/^\@//;
 
-    if ($group_name =~ "envarray") {
-      $value = $ENV{$option_name.$worker};
-    } elsif ($group_name =~ "env") {
-      $value = $ENV{$option_name};
-    } else {
-      my $from_group= $config->group($group_name)
-        or croak "There is no group named '$group_name' that ",
-          "can be used to resolve '$option_name'";
-      $value= $from_group->value($option_name);
-    }
-    $res .= $before.$value;
+  my $from;
+  if ($group_name =~ "env") {
+    $from = $ENV{$option_name};
+  } else {
+    my $from_group = $config->group($group_name) or
+      croak "There is no group named '$group_name' that ",
+      "can be used to resolve '$option_name'";
+
+    $from = $from_group->value($option_name);
   }
-  $res .= $after;
 
-  $config->insert($group->name(), $option->name(), $res)
+  $config->insert($group->name(), $option->name(), $from);
 }
 
 sub post_fix_resolve_at_variables {
-  my ($self, $config, $worker) = @_;
+  my ($self, $config) = @_;
 
   foreach my $group ($config->groups()) {
     foreach my $option ($group->options()) {
       next unless defined $option->value();
-      $self->resolve_at_variable($config, $group, $option, $worker)
-	    if ($option->value() =~ /\@/);
+      $self->resolve_at_variable($config, $group, $option)
+        if ($option->value() =~ /^\@/);
     }
   }
 }
@@ -755,12 +754,13 @@ sub run_generate_sections_from_cluster_config {
 sub new_config {
   my ($class, $args) = @_;
 
-  my @required_args = ('basedir', 'baseport', 'vardir', 'template_path', 'testdir', 'tmpdir', 'worker');
+  my @required_args = ('basedir', 'baseport', 'vardir', 'template_path', 'testdir', 'tmpdir');
 
   foreach my $required (@required_args) {
     croak "you must pass '$required'" unless defined $args->{$required};
   }
 
+# ---- if !WITH_WSREP
 #  # Fill in hosts/port hash
 #  my $hosts    = {};
 #  my $baseport = $args->{baseport};
@@ -768,21 +768,27 @@ sub new_config {
 #  foreach my $host (@{ $args->{hosts} }) {
 #    $hosts->{$host} = $baseport;
 #  }
+# ---- endif
 
   # Open the config template
   my $config              = My::Config->new($args->{'template_path'});
+# ---- if !WITH_WSREP
 #  my $extra_template_path = $args->{'extra_template_path'};
 #  if ($extra_template_path) {
 #    $config->append(My::Config->new($extra_template_path));
 #  }
+# ---- endif
 
   my $self = bless { CONFIG    => $config,
                      ARGS      => $args,
+# ---- if WITH_WSREP
                      PORT      => $args->{baseport},
+                     testname  => $args->{testname},
+# ---- else
 #                     HOSTS     => $hosts,
 #                     NEXT_HOST => 0,
+# ---- endif
                      SERVER_ID => 1,
-                     testname  => $args->{testname},
   }, $class;
 
   # Run pre rules
@@ -833,12 +839,9 @@ sub new_config {
     push(@post_rules, \&post_check_secondary_engine_mysqld_group);
   }
 
-  # Worker ID
-  my $worker = $args->{'worker'};
-
   # Run post rules
   foreach my $rule (@post_rules) {
-    &$rule($self, $config, $worker);
+    &$rule($self, $config);
   }
 
   return $config;
