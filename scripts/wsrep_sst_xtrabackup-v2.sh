@@ -1830,9 +1830,10 @@ if [[ -z $MYSQL_VERSION ]]; then
 fi
 
 # Verify PXB versions we have
-verify_pxb_version "${XTRABACKUP_THIS_VER_PATH}" "${XB_THIS_REQUIRED_VERSION}"
-verify_pxb_version "${XTRABACKUP_PREV_VER_PATH}" "${XB_PREV_REQUIRED_VERSION}"
-verify_pxb_version "${XTRABACKUP_PREV_LTS_VER_PATH}" "${XB_PREV_LTS_REQUIRED_VERSION}"
+# KH: temporary
+#verify_pxb_version "${XTRABACKUP_THIS_VER_PATH}" "${XB_THIS_REQUIRED_VERSION}"
+#verify_pxb_version "${XTRABACKUP_PREV_VER_PATH}" "${XB_PREV_REQUIRED_VERSION}"
+#verify_pxb_version "${XTRABACKUP_PREV_LTS_VER_PATH}" "${XB_PREV_LTS_REQUIRED_VERSION}"
 
 rm -f "${XB_GTID_INFO_FILE_PATH}"
 

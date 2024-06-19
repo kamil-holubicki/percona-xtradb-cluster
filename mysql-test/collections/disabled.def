@@ -60,7 +60,6 @@ innodb.blob-crash-4k                              : BUG#3129 PXC requires 16k In
 innodb.innodb_max_recordsize                      : BUG#3129 PXC requires 16k InnoDB page size (https://jira.percona.com/browse/PXC-3129)
 innodb.instant_ddl_max_row_size                   : BUG#3129 PXC requires 16k InnoDB page size (https://jira.percona.com/browse/PXC-3129)
 innodb.instant_ddl_upgrade_rollback               : BUG#3129 PXC requires 16k InnoDB page size (https://jira.percona.com/browse/PXC-3129)
-innodb.upgrade_fts_aux                            : Bug#7904 Percona PS-7904, Bug#33034679 Test needs upgrading 5.7 data files
 innodb.instant_ddl_recovery_old                   : WL#12527 Redo format has changed - crashed_datadir.zip needs to be recreated.
 innodb.log_logical_size                           : Bug#35543413 Test is shaky - needs to be fixed.
 innodb.set_concurrency_in_readonly                : Bug#35573783 innodb.set_concurrency_in_readonly is failing in trunk
@@ -236,9 +235,6 @@ binlog.binlog_xa_prepared_disconnect : BUG#0 Issue#330 2018-05-16 CODERSHIP mw-3
 galera.galera-index-online-fk : BUG#0 fk_40 triggers inconsistency voting, as it uses a debug_sync on node1
 galera.MW-284 : BUG#0000 test is incompatible with native mysql8.0 server slave behavior (upstream)
 galera.galera_fk_lock_parent_update_child : BUG#0 Few cases have timing issues(PXC-3431) and few are invalid after PXC-3501
-
-# auth_sec
-auth_sec.wrong_keyring_file_data                                        : BUG#0 PXC needs keyring_file/keyring_vault to load without errors
 
 
 # Read only wsrep_provider & wsrep_notify_cmd
