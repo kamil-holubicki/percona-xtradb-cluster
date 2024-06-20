@@ -21,8 +21,8 @@ enforce-gtid-consistency
 report-port=                @mysqld.1.port
 
 binlog-format=row
-early_plugin_load=keyring_file.so
-keyring_file_data=@ENV.MYSQL_TMP_DIR/mysqld.1/keyring.1
+#early_plugin_load=keyring_file.so
+#keyring_file_data=@ENV.MYSQL_TMP_DIR/mysqld.1/keyring.1
 
 wsrep_provider=@ENV.WSREP_PROVIDER
 wsrep_cluster_address='gcomm://'
@@ -46,8 +46,8 @@ wsrep_node_name=pxc_node1
 report-port=                @mysqld.2.port
 
 binlog-format=row
-early_plugin_load=keyring_file.so
-keyring_file_data=@ENV.MYSQL_TMP_DIR/mysqld.2/keyring.2
+#early_plugin_load=keyring_file.so
+#keyring_file_data=@ENV.MYSQL_TMP_DIR/mysqld.2/keyring.2
 
 wsrep_provider=@ENV.WSREP_PROVIDER
 wsrep_cluster_address='gcomm://'
@@ -71,8 +71,8 @@ wsrep_node_name=pxc_node2
 report-port=                @mysqld.3.port
 
 binlog-format=row
-early_plugin_load=keyring_file.so
-keyring_file_data=@ENV.MYSQL_TMP_DIR/mysqld.3/keyring.3
+#early_plugin_load=keyring_file.so
+#keyring_file_data=@ENV.MYSQL_TMP_DIR/mysqld.3/keyring.3
 
 wsrep_provider=@ENV.WSREP_PROVIDER
 wsrep_cluster_address='gcomm://'
@@ -96,8 +96,8 @@ wsrep_node_name=pxc_node3
 report-port=                @mysqld.4.port
 
 binlog-format=row
-early_plugin_load=keyring_file.so
-keyring_file_data=@ENV.MYSQL_TMP_DIR/mysqld.4/keyring.4
+#early_plugin_load=keyring_file.so
+#keyring_file_data=@ENV.MYSQL_TMP_DIR/mysqld.4/keyring.4
 
 wsrep_provider=@ENV.WSREP_PROVIDER
 wsrep_cluster_address='gcomm://'
