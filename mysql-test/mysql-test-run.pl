@@ -7477,7 +7477,8 @@ sub start_servers($) {
         return 1;
       }
     }
-    mtr_milli_sleep(3000);
+    # KH: do we need this?
+    # mtr_milli_sleep(3000);
   }
 
   # Wait for clusters to start
