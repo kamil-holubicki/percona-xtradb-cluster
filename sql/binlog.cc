@@ -8990,7 +8990,11 @@ TC_LOG::enum_result MYSQL_BIN_LOG::commit(THD *thd, bool all) {
       return RESULT_ABORTED;
     }
 
-    int rc = ordered_commit(thd, all, skip_commit);
+    int rc = 0;
+    if (DBUG_EVALUATE_IF("simulate_xa_commit_log_inconsistency", true, false)) {
+      rc = 1;
+    }
+    rc = rc ? rc : ordered_commit(thd, all, skip_commit);
 
     if (run_wsrep_hooks) {
       wsrep_after_commit(thd, all);
@@ -8998,8 +9002,7 @@ TC_LOG::enum_result MYSQL_BIN_LOG::commit(THD *thd, bool all) {
 
     thd->run_wsrep_ordered_commit = false;
 
-    if (DBUG_EVALUATE_IF("simulate_xa_commit_log_inconsistency", true, false) ||
-        rc) {
+    if (rc) {
 #else
     if (DBUG_EVALUATE_IF("simulate_xa_commit_log_inconsistency", true, false) ||
         ordered_commit(thd, all, skip_commit)) {
