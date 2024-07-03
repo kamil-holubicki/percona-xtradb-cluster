@@ -7438,24 +7438,23 @@ sub start_servers($) {
     my $tmpdir = $mysqld->value('tmpdir');
     mkpath($tmpdir) unless -d $tmpdir;
 
-    my $datadir            = $mysqld->value('datadir');
     my $name = $mysqld->name();
 
     # Run <tname>-master.sh
-    if ($mysqld->option('#!run-master-sh') and
+    if ($mysqld->option('#!run-master-sh') and $tinfo->{master_sh} and
         run_sh_script("$tinfo->{master_sh} $datadir $name")) {
       $tinfo->{'comment'} = "Failed to execute '$tinfo->{master_sh}'";
       return 1;
     }
 
     # Run <tname>-slave.sh
-    if ($mysqld->option('#!run-slave-sh') and
+    if ($mysqld->option('#!run-slave-sh') and $tinfo->{slave_sh} and
         run_sh_script($tinfo->{slave_sh})) {
       $tinfo->{'comment'} = "Failed to execute '$tinfo->{slave_sh}'";
       return 1;
     }
 
-    if ($mysqld->option('#!run-suite-setup-sh') and
+    if ($mysqld->option('#!run-suite-setup-sh') and $tinfo->{suite_setup_sh} and
         run_sh_script("$tinfo->{suite_setup_sh} $datadir $name")) {
       $tinfo->{'comment'} = "Failed to execute '$tinfo->{suite_setup_sh}'";
       return 1;
