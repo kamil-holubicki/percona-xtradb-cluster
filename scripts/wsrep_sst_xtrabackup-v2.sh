@@ -1098,7 +1098,7 @@ get_keyring_manifest_and_config()
         # Get the path of keyring file data
         # TODO: should we add the condition that it is indeed keyring_file component
         # (there are several kinds of such component)
-        if [ -e $config_file ]; then
+        if [[ -n "$config_file" && -e "$config_file" ]]; then
             keyring_file=$(get_json_value $config_file "path")
         fi
 
