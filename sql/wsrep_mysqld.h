@@ -117,6 +117,7 @@ extern my_bool     wsrep_slave_UK_checks;
 extern ulonglong   wsrep_mode;
 extern ulong       wsrep_running_threads;
 extern ulong       wsrep_RSU_commit_timeout;
+extern my_bool     wsrep_ready_kh;
 
 enum enum_wsrep_reject_types {
   WSREP_REJECT_NONE,    /* nothing rejected */

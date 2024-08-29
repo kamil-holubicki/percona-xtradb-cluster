@@ -1874,7 +1874,8 @@ int Relay_log_info::stmt_done(my_off_t event_master_log_pos)
   {
     inc_event_relay_log_pos();
 #ifdef WITH_WSREP
-    if (false && WSREP_ON && wsrep_preordered_opt)
+    // KH:
+    if (WSREP_ON && wsrep_preordered_opt)
        error= inc_group_relay_log_pos(event_master_log_pos, true/*need_data_lock=true*/);
 #endif
   }

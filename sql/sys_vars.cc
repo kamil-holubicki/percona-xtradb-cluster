@@ -559,7 +559,7 @@ static Sys_var_long Sys_pfs_events_stages_history_size(
   - 1 for "statement/com/Error", for invalid enum_server_command
   - SQLCOM_END for all regular "statement/sql/...",
   - 1 for "statement/sql/error", for invalid enum_sql_command.
-  - SP_PSI_STATEMENT_INFO_COUNT for "statement/sp/...". 
+  - SP_PSI_STATEMENT_INFO_COUNT for "statement/sp/...".
   - 1 for "statement/rpl/relay_log", for replicated statements.
   - 1 for "statement/scheduler/event", for scheduled events.
 */
@@ -983,7 +983,7 @@ static bool binlog_format_check(sys_var *self, THD *thd, set_var *var)
     /* Toggline binlog-format at GLOBAL level to MIXED/STATEMENT
     is not allowed. pxc-string-mode check will be evaluated
     only for SESSION level setting. */
-    WSREP_ERROR("Percona-XtraDB-Cluster prohibits setting" 
+    WSREP_ERROR("Percona-XtraDB-Cluster prohibits setting"
                 " binlog_format to STATEMENT or MIXED at global level");
     my_error(ER_WRONG_VALUE_FOR_VAR, MYF(0), var->var->name.str,
              var->save_result.ulonglong_value == BINLOG_FORMAT_STMT ?
@@ -1140,7 +1140,7 @@ static Sys_var_mybool Sys_binlog_encryption(
 
 static const char *binlog_row_image_names[]= {"MINIMAL", "NOBLOB", "FULL", NullS};
 static Sys_var_enum Sys_binlog_row_image(
-       "binlog_row_image", 
+       "binlog_row_image",
        "Controls whether rows should be logged in 'FULL', 'NOBLOB' or "
        "'MINIMAL' formats. 'FULL', means that all columns in the before "
        "and after image are logged. 'NOBLOB', means that mysqld avoids logging "
@@ -2060,7 +2060,7 @@ static Sys_var_mybool Sys_large_pages(
 
 static Sys_var_charptr Sys_language(
        "lc_messages_dir", "Directory where error messages are",
-       READ_ONLY GLOBAL_VAR(lc_messages_dir_ptr), 
+       READ_ONLY GLOBAL_VAR(lc_messages_dir_ptr),
        CMD_LINE(REQUIRED_ARG, OPT_LC_MESSAGES_DIRECTORY),
        IN_FS_CHARSET, DEFAULT(0));
 
@@ -2888,7 +2888,7 @@ static Sys_var_charptr Sys_named_pipe_full_access_group(
 #endif /* _WIN32 */
 
 
-static bool 
+static bool
 check_net_buffer_length(sys_var *self, THD *thd,  set_var *var)
 {
   longlong val;
@@ -3905,7 +3905,7 @@ static Sys_var_set Slave_type_conversions(
        " ALL_LOSSY to enable lossy conversions,"
        " ALL_NON_LOSSY to enable non-lossy conversions,"
        " ALL_UNSIGNED to treat all integer column type data to be unsigned values, and"
-       " ALL_SIGNED to treat all integer column type data to be signed values." 
+       " ALL_SIGNED to treat all integer column type data to be signed values."
        " Default treatment is ALL_SIGNED. If ALL_SIGNED and ALL_UNSIGNED both are"
        " specified, ALL_SIGNED will take higher priority than ALL_UNSIGNED."
        " If the variable is assigned the empty set, no conversions are"
@@ -3983,7 +3983,7 @@ static bool check_slave_stopped(sys_var *self, THD *thd, set_var *var)
 
 static const char *slave_rows_search_algorithms_names[]= {"TABLE_SCAN", "INDEX_SCAN", "HASH_SCAN", 0};
 static Sys_var_set Slave_rows_search_algorithms(
-       "slave_rows_search_algorithms", 
+       "slave_rows_search_algorithms",
        "Set of searching algorithms that the slave will use while "
        "searching for records from the storage engine to either "
        "updated or deleted them. Possible values are: INDEX_SCAN, "
@@ -4112,7 +4112,7 @@ bool Sys_var_enum_binlog_checksum::global_update(THD *thd, set_var *var)
   assert(mysql_bin_log.checksum_alg_reset ==
          binary_log::BINLOG_CHECKSUM_ALG_UNDEF);
   mysql_mutex_unlock(mysql_bin_log.get_log_lock());
-  
+
   if (check_purge)
     mysql_bin_log.purge();
 
@@ -4576,7 +4576,7 @@ static Sys_var_uint Sys_threadpool_stall_limit(
  "may be created to handle remaining clients.",
   GLOBAL_VAR(threadpool_stall_limit), CMD_LINE(REQUIRED_ARG),
   VALID_RANGE(10, UINT_MAX), DEFAULT(500), BLOCK_SIZE(1),
-  NO_MUTEX_GUARD, NOT_IN_BINLOG, ON_CHECK(0), 
+  NO_MUTEX_GUARD, NOT_IN_BINLOG, ON_CHECK(0),
   ON_UPDATE(fix_threadpool_stall_limit)
 );
 static Sys_var_uint Sys_threadpool_high_prio_tickets(
@@ -4608,7 +4608,7 @@ static Sys_var_uint Sys_threadpool_max_threads(
   "Maximum allowed number of worker threads in the thread pool",
    GLOBAL_VAR(threadpool_max_threads), CMD_LINE(REQUIRED_ARG),
    VALID_RANGE(1, MAX_CONNECTIONS), DEFAULT(MAX_CONNECTIONS), BLOCK_SIZE(1),
-   NO_MUTEX_GUARD, NOT_IN_BINLOG, ON_CHECK(0), 
+   NO_MUTEX_GUARD, NOT_IN_BINLOG, ON_CHECK(0),
    ON_UPDATE(fix_tp_max_threads)
 );
 #endif /* HAVE_POOL_OF_THREADS */
@@ -5145,7 +5145,7 @@ static Sys_var_bit Sys_log_off(
        DEFAULT(FALSE), NO_MUTEX_GUARD, NOT_IN_BINLOG, ON_CHECK(check_has_super));
 
 /**
-  This function sets the session variable thd->variables.sql_log_bin 
+  This function sets the session variable thd->variables.sql_log_bin
   to reflect changes to @@session.sql_log_bin.
 
   @param[in] self   A pointer to the sys_var, i.e. Sys_log_binlog.
@@ -5324,7 +5324,7 @@ static Sys_var_session_special_double Sys_timestamp(
        "timestamp", "Set the time for this client",
        sys_var::ONLY_SESSION, NO_CMD_LINE,
        VALID_RANGE(0, 0), BLOCK_SIZE(1),
-       NO_MUTEX_GUARD, IN_BINLOG, ON_CHECK(check_timestamp), 
+       NO_MUTEX_GUARD, IN_BINLOG, ON_CHECK(check_timestamp),
        ON_UPDATE(update_timestamp), ON_READ(read_timestamp));
 
 static bool update_last_insert_id(THD *thd, set_var *var)
@@ -5559,10 +5559,10 @@ static bool check_log_path(sys_var *self, THD *thd, set_var *var)
   if (!path_length)
     return true;
 
-  if (!is_filename_allowed(var->save_result.string_value.str, 
+  if (!is_filename_allowed(var->save_result.string_value.str,
                            var->save_result.string_value.length, TRUE))
   {
-     my_error(ER_WRONG_VALUE_FOR_VAR, MYF(0), 
+     my_error(ER_WRONG_VALUE_FOR_VAR, MYF(0),
               self->name.str, var->save_result.string_value.str);
      return true;
   }
@@ -5775,8 +5775,8 @@ static Sys_var_double sys_slow_query_log_always_write_time(
        NO_MUTEX_GUARD, NOT_IN_BINLOG, ON_CHECK(NULL),
        ON_UPDATE(update_slow_query_log_always_write_time));
 static const char* log_slow_verbosity_name[] = {
-  "microtime", "query_plan", "innodb", 
-  "profiling", "profiling_use_getrusage", 
+  "microtime", "query_plan", "innodb",
+  "profiling", "profiling_use_getrusage",
   "minimal", "standard", "full", 0
 };
 static ulonglong update_log_slow_verbosity_replace(ulonglong value, ulonglong what, ulonglong by)
@@ -6014,7 +6014,7 @@ static bool check_not_empty_set(sys_var *self, THD *thd, set_var *var)
   if (var->save_result.ulonglong_value == LOG_NONE  ||
       var->save_result.ulonglong_value == LOG_FILE)
     return false;
-  
+
   bool block= false;
 
   switch(pxc_strict_mode)
@@ -6392,11 +6392,11 @@ static Sys_var_charptr Sys_wsrep_provider(
 
 static Sys_var_charptr Sys_wsrep_provider_options(
        "wsrep_provider_options", "provider specific options",
-       PREALLOCATED GLOBAL_VAR(wsrep_provider_options), 
+       PREALLOCATED GLOBAL_VAR(wsrep_provider_options),
        CMD_LINE(REQUIRED_ARG, OPT_WSREP_PROVIDER_OPTIONS),
        IN_FS_CHARSET, DEFAULT(""),
        NO_MUTEX_GUARD, NOT_IN_BINLOG,
-       ON_CHECK(wsrep_provider_options_check), 
+       ON_CHECK(wsrep_provider_options_check),
        ON_UPDATE(wsrep_provider_options_update));
 
 static Sys_var_charptr Sys_wsrep_data_home_dir(
@@ -6415,11 +6415,11 @@ static Sys_var_charptr Sys_wsrep_cluster_name(
 
 static Sys_var_charptr Sys_wsrep_cluster_address (
        "wsrep_cluster_address", "Address to initially connect to cluster",
-       PREALLOCATED GLOBAL_VAR(wsrep_cluster_address), 
+       PREALLOCATED GLOBAL_VAR(wsrep_cluster_address),
        CMD_LINE(REQUIRED_ARG, OPT_WSREP_CLUSTER_ADDRESS),
        IN_FS_CHARSET, DEFAULT(""),
        &PLock_wsrep_slave_threads, NOT_IN_BINLOG,
-       ON_CHECK(wsrep_cluster_address_check), 
+       ON_CHECK(wsrep_cluster_address_check),
        ON_UPDATE(wsrep_cluster_address_update));
 
 static Sys_var_charptr Sys_wsrep_node_name (
@@ -6435,7 +6435,7 @@ static Sys_var_charptr Sys_wsrep_node_address (
        PREALLOCATED GLOBAL_VAR(wsrep_node_address), CMD_LINE(REQUIRED_ARG),
        IN_FS_CHARSET, DEFAULT(""),
        NO_MUTEX_GUARD, NOT_IN_BINLOG,
-       ON_CHECK(wsrep_node_address_check), 
+       ON_CHECK(wsrep_node_address_check),
        ON_UPDATE(wsrep_node_address_update));
 
 static Sys_var_charptr Sys_wsrep_node_incoming_address(
@@ -6465,7 +6465,7 @@ static Sys_var_mybool Sys_wsrep_debug(
 static Sys_var_mybool Sys_wsrep_convert_LOCK_to_trx(
        "wsrep_convert_LOCK_to_trx", "To convert locking sessions (deprecated)"
        "into transactions",
-       GLOBAL_VAR(wsrep_convert_LOCK_to_trx), 
+       GLOBAL_VAR(wsrep_convert_LOCK_to_trx),
        CMD_LINE(OPT_ARG), DEFAULT(FALSE), NO_MUTEX_GUARD,
        NOT_IN_BINLOG, ON_CHECK(0), ON_UPDATE(0), DEPRECATED_VAR(""));
 
@@ -6519,15 +6519,15 @@ static bool update_wsrep_auto_increment_control (sys_var *self, THD *thd, enum_v
 static Sys_var_mybool Sys_wsrep_auto_increment_control(
        "wsrep_auto_increment_control", "To automatically control the "
        "assignment of autoincrement variables",
-       GLOBAL_VAR(wsrep_auto_increment_control), 
+       GLOBAL_VAR(wsrep_auto_increment_control),
        CMD_LINE(OPT_ARG), DEFAULT(TRUE),
        NO_MUTEX_GUARD, NOT_IN_BINLOG, ON_CHECK(0),
        ON_UPDATE(update_wsrep_auto_increment_control));
 
 static Sys_var_mybool Sys_wsrep_drupal_282555_workaround(
        "wsrep_drupal_282555_workaround", "To use a workaround for"
-       "bad autoincrement value", 
-       GLOBAL_VAR(wsrep_drupal_282555_workaround), 
+       "bad autoincrement value",
+       GLOBAL_VAR(wsrep_drupal_282555_workaround),
        CMD_LINE(OPT_ARG), DEFAULT(FALSE), NO_MUTEX_GUARD, NOT_IN_BINLOG,
        ON_CHECK(0), ON_UPDATE(0), DEPRECATED_VAR(""));
 
@@ -6536,7 +6536,7 @@ static Sys_var_charptr sys_wsrep_sst_method(
        GLOBAL_VAR(wsrep_sst_method),CMD_LINE(REQUIRED_ARG),
        IN_FS_CHARSET, DEFAULT(wsrep_sst_method), NO_MUTEX_GUARD, NOT_IN_BINLOG,
        ON_CHECK(wsrep_sst_method_check),
-       ON_UPDATE(wsrep_sst_method_update)); 
+       ON_UPDATE(wsrep_sst_method_update));
 
 static Sys_var_charptr sys_wsrep_sst_allowed_methods(
        "wsrep_sst_allowed_methods", "SST methods accepted by server",
@@ -6544,51 +6544,59 @@ static Sys_var_charptr sys_wsrep_sst_allowed_methods(
        IN_FS_CHARSET, DEFAULT(wsrep_sst_allowed_methods), NO_MUTEX_GUARD,
        NOT_IN_BINLOG, ON_CHECK(0), ON_UPDATE(0));
 
-static Sys_var_charptr Sys_wsrep_sst_receive_address( 
+static Sys_var_charptr Sys_wsrep_sst_receive_address(
        "wsrep_sst_receive_address", "Address where node is waiting for "
-       "SST contact", 
+       "SST contact",
        GLOBAL_VAR(wsrep_sst_receive_address),CMD_LINE(REQUIRED_ARG),
-       IN_FS_CHARSET, DEFAULT(wsrep_sst_receive_address), NO_MUTEX_GUARD, 
+       IN_FS_CHARSET, DEFAULT(wsrep_sst_receive_address), NO_MUTEX_GUARD,
        NOT_IN_BINLOG,
        ON_CHECK(wsrep_sst_receive_address_check),
-       ON_UPDATE(wsrep_sst_receive_address_update)); 
+       ON_UPDATE(wsrep_sst_receive_address_update));
 
 static Sys_var_charptr Sys_wsrep_sst_auth(
        "wsrep_sst_auth", "Authentication for SST connection",
        PREALLOCATED GLOBAL_VAR(wsrep_sst_auth), CMD_LINE(REQUIRED_ARG, OPT_WSREP_SST_AUTH),
-       IN_FS_CHARSET, DEFAULT(wsrep_sst_auth), NO_MUTEX_GUARD, 
+       IN_FS_CHARSET, DEFAULT(wsrep_sst_auth), NO_MUTEX_GUARD,
        NOT_IN_BINLOG,
        ON_CHECK(wsrep_sst_auth_check),
-       ON_UPDATE(wsrep_sst_auth_update)); 
+       ON_UPDATE(wsrep_sst_auth_update));
 
 static Sys_var_charptr Sys_wsrep_sst_donor(
        "wsrep_sst_donor", "preferred donor node for the SST",
        GLOBAL_VAR(wsrep_sst_donor),CMD_LINE(REQUIRED_ARG),
        IN_FS_CHARSET, DEFAULT(""), NO_MUTEX_GUARD, NOT_IN_BINLOG,
        ON_CHECK(wsrep_sst_donor_check),
-       ON_UPDATE(wsrep_sst_donor_update)); 
+       ON_UPDATE(wsrep_sst_donor_update));
 
 static Sys_var_mybool Sys_wsrep_sst_donor_rejects_queries(
        "wsrep_sst_donor_rejects_queries", "Reject client queries "
-       "when donating state snapshot transfer", 
-       GLOBAL_VAR(wsrep_sst_donor_rejects_queries), 
+       "when donating state snapshot transfer",
+       GLOBAL_VAR(wsrep_sst_donor_rejects_queries),
        CMD_LINE(OPT_ARG), DEFAULT(FALSE));
 
 static Sys_var_mybool Sys_wsrep_on (
        "wsrep_on", "To enable wsrep replication ",
        SESSION_ONLY(wsrep_on),
-       CMD_LINE(OPT_ARG), DEFAULT(TRUE), 
+       CMD_LINE(OPT_ARG), DEFAULT(TRUE),
        NO_MUTEX_GUARD, NOT_IN_BINLOG,
        ON_CHECK(wsrep_on_check),
        ON_UPDATE(wsrep_on_update));
 
+static Sys_var_mybool Sys_wsrep_ready_kh (
+       "wsrep_ready_kh", "To enable wsrep replication ",
+       GLOBAL_VAR(wsrep_ready_kh),
+       CMD_LINE(OPT_ARG), DEFAULT(TRUE),
+       NO_MUTEX_GUARD, NOT_IN_BINLOG,
+       ON_CHECK(0),
+       ON_UPDATE(wsrep_ready_kh_update));
+
 static Sys_var_charptr Sys_wsrep_start_position (
        "wsrep_start_position", "global transaction position to start from ",
-       PREALLOCATED GLOBAL_VAR(wsrep_start_position), 
+       PREALLOCATED GLOBAL_VAR(wsrep_start_position),
        CMD_LINE(REQUIRED_ARG, OPT_WSREP_START_POSITION),
        IN_FS_CHARSET, DEFAULT(WSREP_START_POSITION_ZERO),
        NO_MUTEX_GUARD, NOT_IN_BINLOG,
-       ON_CHECK(wsrep_start_position_check), 
+       ON_CHECK(wsrep_start_position_check),
        ON_UPDATE(wsrep_start_position_update));
 
 static Sys_var_ulong Sys_wsrep_max_ws_size (
@@ -6610,7 +6618,7 @@ static Sys_var_charptr Sys_wsrep_notify_cmd(
 
 static Sys_var_mybool Sys_wsrep_certify_nonPK(
        "wsrep_certify_nonPK", "Certify tables with no primary key",
-       GLOBAL_VAR(wsrep_certify_nonPK), 
+       GLOBAL_VAR(wsrep_certify_nonPK),
        CMD_LINE(OPT_ARG), DEFAULT(TRUE));
 
 static const char *wsrep_certification_rules_names[]= { "strict", "optimized", NullS };
@@ -6628,7 +6636,7 @@ static Sys_var_enum Sys_wsrep_certification_rules(
 
 static Sys_var_mybool Sys_wsrep_causal_reads(
        "wsrep_causal_reads", "(DEPRECATED) setting this variable is equivalent to setting wsrep_sync_wait READ flag",
-       SESSION_VAR(wsrep_causal_reads), 
+       SESSION_VAR(wsrep_causal_reads),
        CMD_LINE(OPT_ARG), DEFAULT(FALSE),
        NO_MUTEX_GUARD, NOT_IN_BINLOG, ON_CHECK(0),
        ON_UPDATE(wsrep_causal_reads_update));
@@ -6643,7 +6651,7 @@ static Sys_var_uint Sys_wsrep_sync_wait(
        NO_MUTEX_GUARD, NOT_IN_BINLOG, ON_CHECK(0),
        ON_UPDATE(wsrep_sync_wait_update));
 
-static const char *wsrep_mode_names[]= 
+static const char *wsrep_mode_names[]=
 { "IGNORE_NATIVE_REPLICATION_FILTER_RULES",
   "IGNORE_CASCADING_FK_DELETE_MISSING_ROW_ERROR",
   NullS
@@ -6678,7 +6686,7 @@ static Sys_var_ulong Sys_wsrep_RSU_commit_timeout(
 static PolyLock_mutex PLock_wsrep_desync(&LOCK_wsrep_desync);
 static Sys_var_mybool Sys_wsrep_desync (
        "wsrep_desync", "To desynchronize the node from the cluster",
-       GLOBAL_VAR(wsrep_desync), 
+       GLOBAL_VAR(wsrep_desync),
        CMD_LINE(OPT_ARG), DEFAULT(FALSE),
        &PLock_wsrep_desync, NOT_IN_BINLOG,
        ON_CHECK(wsrep_desync_check),
@@ -6695,7 +6703,7 @@ static Sys_var_enum Sys_wsrep_reject_queries(
 static Sys_var_enum Sys_wsrep_forced_binlog_format(
        "wsrep_forced_binlog_format",
        "binlog format to take effect over user's choice",
-       GLOBAL_VAR(wsrep_forced_binlog_format), 
+       GLOBAL_VAR(wsrep_forced_binlog_format),
        CMD_LINE(REQUIRED_ARG, OPT_BINLOG_FORMAT),
        wsrep_binlog_format_names, DEFAULT(BINLOG_FORMAT_UNSPEC),
        NO_MUTEX_GUARD, NOT_IN_BINLOG,
@@ -6725,19 +6733,19 @@ static Sys_var_mybool Sys_wsrep_preordered(
 static Sys_var_mybool Sys_wsrep_load_data_splitting(
        "wsrep_load_data_splitting", "To commit LOAD DATA "
        "transaction after every 10K rows inserted",
-       GLOBAL_VAR(wsrep_load_data_splitting), 
+       GLOBAL_VAR(wsrep_load_data_splitting),
        CMD_LINE(OPT_ARG), DEFAULT(TRUE));
 
 static Sys_var_mybool Sys_wsrep_slave_FK_checks(
        "wsrep_slave_FK_checks", "Should slave thread do "
        "foreign key constraint checks",
-       GLOBAL_VAR(wsrep_slave_FK_checks), 
+       GLOBAL_VAR(wsrep_slave_FK_checks),
        CMD_LINE(OPT_ARG), DEFAULT(TRUE));
 
 static Sys_var_mybool Sys_wsrep_slave_UK_checks(
        "wsrep_slave_UK_checks", "Should slave thread do "
        "secondary index uniqueness chesks",
-       GLOBAL_VAR(wsrep_slave_UK_checks), 
+       GLOBAL_VAR(wsrep_slave_UK_checks),
        CMD_LINE(OPT_ARG), DEFAULT(FALSE));
 
 static Sys_var_mybool Sys_wsrep_restart_slave(
@@ -6797,7 +6805,7 @@ static Sys_var_uint Sys_host_cache_size(
 static Sys_var_charptr Sys_ignore_db_dirs(
        "ignore_db_dirs",
        "The list of directories to ignore when collecting database lists",
-       READ_ONLY GLOBAL_VAR(opt_ignore_db_dirs), 
+       READ_ONLY GLOBAL_VAR(opt_ignore_db_dirs),
        NO_CMD_LINE,
        IN_FS_CHARSET, DEFAULT(0));
 
@@ -7108,7 +7116,7 @@ static Sys_var_mybool Sys_disconnect_on_expired_password(
        READ_ONLY GLOBAL_VAR(disconnect_on_expired_password),
        CMD_LINE(OPT_ARG), DEFAULT(TRUE));
 
-#ifndef NO_EMBEDDED_ACCESS_CHECKS 
+#ifndef NO_EMBEDDED_ACCESS_CHECKS
 static Sys_var_mybool Sys_validate_user_plugins(
        "validate_user_plugins",
        "Turns on additional validation of authentication plugins assigned "

@@ -40,6 +40,8 @@ const  char* wsrep_node_address     = 0;
 const  char* wsrep_node_incoming_address = 0;
 const  char* wsrep_start_position   = 0;
 ulong   wsrep_reject_queries;
+my_bool wsrep_ready_kh;
+
 
 int wsrep_init_vars()
 {
@@ -90,6 +92,15 @@ bool wsrep_on_update (sys_var *self, THD* thd, enum_var_type var_type)
 {
   return false;
 }
+
+extern my_bool wsrep_ready_kh;
+bool wsrep_ready_kh_update (sys_var *self, THD* thd, enum_var_type var_type)
+{
+  fprintf(stderr, "KH: setting wsrep ready to %d", wsrep_ready_kh);
+  wsrep_ready_set(wsrep_ready_kh);
+  return false;
+}
+
 
 bool wsrep_causal_reads_update (sys_var *self, THD* thd, enum_var_type var_type)
 {
@@ -220,7 +231,7 @@ void wsrep_start_position_init (const char* val)
 {
   if (NULL == val || wsrep_start_position_verify (val))
   {
-    WSREP_ERROR("Bad initial value for wsrep_start_position: %s", 
+    WSREP_ERROR("Bad initial value for wsrep_start_position: %s",
                 (val ? val : ""));
     return;
   }
@@ -256,7 +267,7 @@ end:
 
 static bool refresh_provider_options()
 {
-  WSREP_DEBUG("refresh_provider_options: %s", 
+  WSREP_DEBUG("refresh_provider_options: %s",
               (wsrep_provider_options) ? wsrep_provider_options : "null");
   char* opts= wsrep->options_get(wsrep);
   if (opts)
@@ -357,11 +368,11 @@ bool wsrep_provider_update (sys_var *self, THD* thd, enum_var_type type)
 
   WSREP_DEBUG("Updating wsrep_provider to: %s", wsrep_provider);
 
-  /* stop replication is heavy operation, and includes closing all client 
+  /* stop replication is heavy operation, and includes closing all client
      connections. Closing clients may need to get LOCK_global_system_variables
      at least in MariaDB.
 
-     Note: releasing LOCK_global_system_variables may cause race condition, if 
+     Note: releasing LOCK_global_system_variables may cause race condition, if
      there can be several concurrent clients changing wsrep_provider
   */
   mysql_mutex_unlock(&LOCK_global_system_variables);
@@ -377,7 +388,7 @@ bool wsrep_provider_update (sys_var *self, THD* thd, enum_var_type type)
 
   wsrep_deinit();
 
-  char* tmp= strdup(wsrep_provider); // wsrep_init() rewrites provider 
+  char* tmp= strdup(wsrep_provider); // wsrep_init() rewrites provider
                                      //when fails
   if (wsrep_init())
   {
@@ -401,8 +412,8 @@ bool wsrep_provider_update (sys_var *self, THD* thd, enum_var_type type)
 
 void wsrep_provider_init (const char* value)
 {
-  WSREP_DEBUG("wsrep_provider_init: %s -> %s", 
-              (wsrep_provider) ? wsrep_provider : "null", 
+  WSREP_DEBUG("wsrep_provider_init: %s -> %s",
+              (wsrep_provider) ? wsrep_provider : "null",
               (value) ? value : "null");
   if (NULL == value || wsrep_provider_verify (value))
   {
@@ -502,11 +513,11 @@ bool wsrep_cluster_address_update (sys_var *self, THD* thd, enum_var_type type)
   bool wsrep_on_saved= thd->variables.wsrep_on;
   thd->variables.wsrep_on= false;
 
-  /* stop replication is heavy operation, and includes closing all client 
+  /* stop replication is heavy operation, and includes closing all client
      connections. Closing clients may need to get LOCK_global_system_variables
      at least in MariaDB.
 
-     Note: releasing LOCK_global_system_variables may cause race condition, if 
+     Note: releasing LOCK_global_system_variables may cause race condition, if
      there can be several concurrent clients changing wsrep_provider
   */
   mysql_mutex_unlock(&LOCK_global_system_variables);
@@ -532,8 +543,8 @@ bool wsrep_cluster_address_update (sys_var *self, THD* thd, enum_var_type type)
 
 void wsrep_cluster_address_init (const char* value)
 {
-  WSREP_DEBUG("wsrep_cluster_address_init: %s -> %s", 
-              (wsrep_cluster_address) ? wsrep_cluster_address : "null", 
+  WSREP_DEBUG("wsrep_cluster_address_init: %s -> %s",
+              (wsrep_cluster_address) ? wsrep_cluster_address : "null",
               (value) ? value : "null");
 
   if (wsrep_cluster_address) my_free ((void*)wsrep_cluster_address);
@@ -843,7 +854,7 @@ bool wsrep_replicate_myisam_check(sys_var *self, THD* thd, set_var* var)
                " table replication feature"
                " with pxc_strict_mode = PERMISSIVE");
     push_warning_printf(
-      thd, Sql_condition::SL_WARNING, ER_UNKNOWN_ERROR, 
+      thd, Sql_condition::SL_WARNING, ER_UNKNOWN_ERROR,
       "Percona-XtraDB-Cluster doesn't recommend use of MyISAM"
       " table replication feature"
       " with pxc_strict_mode = PERMISSIVE");
@@ -955,7 +966,7 @@ bool pxc_strict_mode_check(sys_var *self, THD* thd, set_var* var)
       sprintf(message,
               "Can't change pxc_strict_mode to %s as%s%s%s%s",
               pxc_strict_mode_to_string(var->save_result.ulonglong_value),
-              (replicate_myisam ? " wsrep_replicate_myisam is ON" : ""), 
+              (replicate_myisam ? " wsrep_replicate_myisam is ON" : ""),
               (!row_binlog_format ? " binlog_format != ROW" : ""),
               (!safe_log_output ? " log_output != NONE/FILE" : ""),
               (serializable ? " isolation level is SERIALIZABLE" : ""));

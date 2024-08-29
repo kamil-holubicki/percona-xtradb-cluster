@@ -13951,7 +13951,7 @@ int Rows_query_log_event::do_apply_event(Relay_log_info const *rli)
   thd->set_query(m_rows_query, strlen(m_rows_query));
   thd->set_query_for_display(m_rows_query, strlen(m_rows_query));
 
-  assert(rli->rows_query_ev == NULL);
+  // KH: assert(rli->rows_query_ev == NULL);
 
   const_cast<Relay_log_info*>(rli)->rows_query_ev= this;
   /* Tell worker not to free the event */

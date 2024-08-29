@@ -4968,7 +4968,7 @@ apply_event_and_update_pos(Log_event** ptr_ev, THD* thd, Relay_log_info* rli)
       thd->wsrep_po_cnt= 0;
       wsrep_uuid_t source;
       memcpy(source.data, thd->wsrep_po_sid.bytes, sizeof(source.data));
-      fprintf(stderr, "VP: Calling preordered_commit: %s, flags: %d\n",ev->get_type_str(), flags);
+      // fprintf(stderr, "VP: Calling preordered_commit: %s, flags: %d\n",ev->get_type_str(), flags);
       if ((err= wsrep->preordered_commit(wsrep, &thd->wsrep_po_handle,
                                          &source, flags, 1, true)) != WSREP_OK)
       {

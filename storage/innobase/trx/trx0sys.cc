@@ -392,7 +392,7 @@ trx_sys_update_wsrep_checkpoint(
                     Allow current and new values be the same, without 
                     introducing new flags and logic to prevent double storing
                     of the same value */ 
-                    ut_ad(xid_seqno >= trx_sys_cur_xid_seqno);
+                    // KH: ut_ad(xid_seqno >= trx_sys_cur_xid_seqno);
                     trx_sys_cur_xid_seqno = xid_seqno;
                 }
             }

@@ -214,8 +214,8 @@ enum enum_slow_query_log_use_global_control {
   , SLOG_UG_LOG_SLOW_VERBOSITY, SLOG_UG_LONG_QUERY_TIME
   , SLOG_UG_MIN_EXAMINED_ROW_LIMIT, SLOG_UG_ALL
 };
-enum enum_log_slow_verbosity { 
-  SLOG_V_MICROTIME, SLOG_V_QUERY_PLAN, SLOG_V_INNODB, 
+enum enum_log_slow_verbosity {
+  SLOG_V_MICROTIME, SLOG_V_QUERY_PLAN, SLOG_V_INNODB,
   SLOG_V_PROFILING, SLOG_V_PROFILING_USE_GETRUSAGE,
   SLOG_V_MINIMAL, SLOG_V_STANDARD, SLOG_V_FULL
 };
@@ -3576,7 +3576,7 @@ public:
   char*                     wsrep_retry_query;
   size_t                    wsrep_retry_query_len;
   enum enum_server_command  wsrep_retry_command;
-  enum wsrep_consistency_check_mode 
+  enum wsrep_consistency_check_mode
                             wsrep_consistency_check;
   wsrep_stats_var*          wsrep_status_vars;
   int                       wsrep_mysql_replicated;
