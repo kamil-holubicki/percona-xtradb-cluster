@@ -27,7 +27,7 @@ if ($suppress_print_params == '') {
     let $do_not_echo_parameters=;
   }
 }
-
+ 
 # Include this script only after using shutdown_mysqld.inc
 # or kill_mysqld.inc or expect_crash.inc
 # where $_expect_file_name was initialized.
