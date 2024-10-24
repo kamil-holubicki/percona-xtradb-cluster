@@ -945,6 +945,7 @@ MySQL clients support the protocol:
 #include "unicode/uclean.h"  // u_cleanup()
 
 #ifdef WITH_WSREP
+#include "my_md5.h"  // wsrep_init_fips_mode()
 #include "sql/protocol_classic.h"
 #include "sql_thd_internal_api.h"
 #include "wsrep_mysqld.h"
@@ -6263,7 +6264,11 @@ static int init_ssl() {
   if (opt_ssl_fips_mode != SSL_FIPS_MODE_OFF)
     LogErr(WARNING_LEVEL, ER_DEPRECATE_MSG_NO_REPLACEMENT, "--ssl-fips-mode");
 
+  // KH: just for tests, use custom MD5 implementation
+  wsrep_init_fips_mode();
+
   if (get_fips_mode() == 1) {
+    wsrep_init_fips_mode();
     LogErr(INFORMATION_LEVEL, ER_SSL_FIPS_MODE_ENABLED);
   }
 
