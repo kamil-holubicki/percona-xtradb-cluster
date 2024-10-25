@@ -51,19 +51,11 @@ LOCK INSTANCE FOR BACKUP;
 --echo # Unblock applier
 --echo #
 
-<<<<<<< HEAD
-SET DEBUG_SYNC = 'now SIGNAL continue_purge_applied_logs_after_backup_lock';
-SET DEBUG_SYNC = RESET;
-
-||||||| 238b3c022af
-SET DEBUG_SYNC = 'now SIGNAL continue_purge_applied_logs_after_backup_lock';
-
-=======
->>>>>>> ps/release-8.4.2-2
 --let $debug_point = syncpoint_purge_applied_logs_after_backup_lock
 --source include/remove_debug_point.inc
 
 SET DEBUG_SYNC = 'now SIGNAL continue_purge_applied_logs_after_backup_lock';
+SET DEBUG_SYNC = RESET;
 
 --echo #
 --echo # Wait for replica to process the rest of the binlog

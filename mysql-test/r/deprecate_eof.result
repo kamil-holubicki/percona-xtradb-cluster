@@ -25,13 +25,7 @@ SELECT * FROM t1 ORDER BY 1;
 END |
 -- Tracker : SESSION_TRACK_SYSTEM_VARIABLES
 -- statement_id
-<<<<<<< HEAD
--- 17
-||||||| 238b3c022af
--- 13
-=======
--- 16
->>>>>>> ps/release-8.4.2-2
+-- 20
 
 CALL t1_sel();
 a
@@ -39,13 +33,7 @@ a
 2
 -- Tracker : SESSION_TRACK_SYSTEM_VARIABLES
 -- statement_id
-<<<<<<< HEAD
--- 20
-||||||| 238b3c022af
--- 16
-=======
--- 19
->>>>>>> ps/release-8.4.2-2
+-- 23
 
 -- Tracker : SESSION_TRACK_STATE_CHANGE
 -- 1
@@ -59,13 +47,7 @@ SELECT "session state sent as part of above SELECT" AS col_heading;
 END |
 -- Tracker : SESSION_TRACK_SYSTEM_VARIABLES
 -- statement_id
-<<<<<<< HEAD
--- 21
-||||||| 238b3c022af
--- 17
-=======
--- 20
->>>>>>> ps/release-8.4.2-2
+-- 24
 
 CALL t1_inssel();
 a
@@ -75,13 +57,7 @@ a
 4
 -- Tracker : SESSION_TRACK_SYSTEM_VARIABLES
 -- statement_id
-<<<<<<< HEAD
--- 25
-||||||| 238b3c022af
--- 21
-=======
--- 24
->>>>>>> ps/release-8.4.2-2
+-- 28
 
 -- Tracker : SESSION_TRACK_STATE_CHANGE
 -- 1
@@ -96,13 +72,7 @@ SELECT "no session state exists" AS col_heading;
 END |
 -- Tracker : SESSION_TRACK_SYSTEM_VARIABLES
 -- statement_id
-<<<<<<< HEAD
--- 27
-||||||| 238b3c022af
--- 23
-=======
--- 26
->>>>>>> ps/release-8.4.2-2
+-- 30
 
 CALL t1_selins();
 a
@@ -112,13 +82,7 @@ a
 4
 -- Tracker : SESSION_TRACK_SYSTEM_VARIABLES
 -- statement_id
-<<<<<<< HEAD
--- 29
-||||||| 238b3c022af
--- 25
-=======
--- 28
->>>>>>> ps/release-8.4.2-2
+-- 32
 
 col_heading
 no session state exists
@@ -131,13 +95,7 @@ SELECT MAX(2) FROM t1;
 END |
 -- Tracker : SESSION_TRACK_SYSTEM_VARIABLES
 -- statement_id
-<<<<<<< HEAD
--- 32
-||||||| 238b3c022af
--- 28
-=======
--- 31
->>>>>>> ps/release-8.4.2-2
+-- 35
 
 session state sent for both SELECT statement
 CALL t2t1_sel();
@@ -145,13 +103,7 @@ MIN(a)
 1
 -- Tracker : SESSION_TRACK_SYSTEM_VARIABLES
 -- statement_id
-<<<<<<< HEAD
--- 35
-||||||| 238b3c022af
--- 31
-=======
--- 34
->>>>>>> ps/release-8.4.2-2
+-- 38
 
 -- Tracker : SESSION_TRACK_STATE_CHANGE
 -- 1
@@ -173,13 +125,7 @@ SELECT "session state sent for SELECT inside t1_sel()" AS col_heading;
 END |
 -- Tracker : SESSION_TRACK_SYSTEM_VARIABLES
 -- statement_id
-<<<<<<< HEAD
--- 38
-||||||| 238b3c022af
--- 34
-=======
--- 37
->>>>>>> ps/release-8.4.2-2
+-- 41
 
 CALL t1_call();
 a
@@ -191,13 +137,7 @@ a
 6
 -- Tracker : SESSION_TRACK_SYSTEM_VARIABLES
 -- statement_id
-<<<<<<< HEAD
--- 43
-||||||| 238b3c022af
--- 39
-=======
--- 42
->>>>>>> ps/release-8.4.2-2
+-- 46
 
 -- Tracker : SESSION_TRACK_STATE_CHANGE
 -- 1
@@ -233,13 +173,7 @@ SELECT * FROM t2;
 END |
 -- Tracker : SESSION_TRACK_SYSTEM_VARIABLES
 -- statement_id
-<<<<<<< HEAD
--- 45
-||||||| 238b3c022af
--- 41
-=======
--- 44
->>>>>>> ps/release-8.4.2-2
+-- 48
 
 Warnings:
 Warning	1681	Specifying number of digits for floating point data types is deprecated and will be removed in a future release.
@@ -254,13 +188,7 @@ a
 6
 -- Tracker : SESSION_TRACK_SYSTEM_VARIABLES
 -- statement_id
-<<<<<<< HEAD
--- 59
-||||||| 238b3c022af
--- 55
-=======
--- 58
->>>>>>> ps/release-8.4.2-2
+-- 62
 -- time_zone
 -- Europe/Moscow
 
@@ -282,13 +210,7 @@ SELECT @a,@b,@c,@d,@e,@f,@g,@h,@i,@j;
 20	test_1	12.34	567.891	2345	NULL	test_2	67.891	234.6789	6789
 -- Tracker : SESSION_TRACK_SYSTEM_VARIABLES
 -- statement_id
-<<<<<<< HEAD
--- 62
-||||||| 238b3c022af
--- 58
-=======
--- 61
->>>>>>> ps/release-8.4.2-2
+-- 65
 
 
 #CASE2: SELECT FUNCTIONs
@@ -300,55 +222,7 @@ RETURN (SELECT COUNT(*) FROM t1);
 END |
 -- Tracker : SESSION_TRACK_SYSTEM_VARIABLES
 -- statement_id
-<<<<<<< HEAD
--- 63
-||||||| 238b3c022af
--- 59
-
-SELECT f1();
-f1()
-6
--- Tracker : SESSION_TRACK_SYSTEM_VARIABLES
--- character_set_client
--- utf8mb4
--- character_set_connection
--- utf8mb4
--- character_set_results
--- big5
--- statement_id
--- 60
-
--- Tracker : SESSION_TRACK_STATE_CHANGE
--- 1
-
-CREATE VIEW v1 AS SELECT f1();
--- Tracker : SESSION_TRACK_SYSTEM_VARIABLES
--- statement_id
--- 63
-=======
--- 62
-
-SELECT f1();
-f1()
-6
--- Tracker : SESSION_TRACK_SYSTEM_VARIABLES
--- character_set_client
--- utf8mb4
--- character_set_connection
--- utf8mb4
--- character_set_results
--- big5
--- statement_id
--- 63
-
--- Tracker : SESSION_TRACK_STATE_CHANGE
--- 1
-
-CREATE VIEW v1 AS SELECT f1();
--- Tracker : SESSION_TRACK_SYSTEM_VARIABLES
--- statement_id
 -- 66
->>>>>>> ps/release-8.4.2-2
 
 SELECT f1();
 f1()
@@ -369,7 +243,7 @@ f1()
 CREATE VIEW v1 AS SELECT f1();
 -- Tracker : SESSION_TRACK_SYSTEM_VARIABLES
 -- statement_id
--- 67
+-- 70
 
 SELECT * FROM v1;
 f1()
@@ -382,7 +256,7 @@ f1()
 -- character_set_results
 -- big5
 -- statement_id
--- 68
+-- 71
 
 -- Tracker : SESSION_TRACK_STATE_CHANGE
 -- 1
@@ -393,13 +267,7 @@ SELECT MIN(a) INTO x FROM t1;
 END |
 -- Tracker : SESSION_TRACK_SYSTEM_VARIABLES
 -- statement_id
-<<<<<<< HEAD
--- 71
-||||||| 238b3c022af
--- 67
-=======
--- 70
->>>>>>> ps/release-8.4.2-2
+-- 74
 
 CREATE FUNCTION f2() RETURNS int
 BEGIN
@@ -410,26 +278,14 @@ RETURN a;
 END |
 -- Tracker : SESSION_TRACK_SYSTEM_VARIABLES
 -- statement_id
-<<<<<<< HEAD
--- 72
-||||||| 238b3c022af
--- 68
-=======
--- 71
->>>>>>> ps/release-8.4.2-2
+-- 75
 
 SELECT f2();
 f2()
 1
 -- Tracker : SESSION_TRACK_SYSTEM_VARIABLES
 -- statement_id
-<<<<<<< HEAD
--- 73
-||||||| 238b3c022af
--- 69
-=======
--- 72
->>>>>>> ps/release-8.4.2-2
+-- 76
 
 -- Tracker : SESSION_TRACK_STATE_CHANGE
 -- 1
@@ -446,26 +302,14 @@ RETURN a + b;
 END |
 -- Tracker : SESSION_TRACK_SYSTEM_VARIABLES
 -- statement_id
-<<<<<<< HEAD
--- 79
-||||||| 238b3c022af
--- 75
-=======
--- 78
->>>>>>> ps/release-8.4.2-2
+-- 82
 
 SELECT f3();
 f3()
 6
 -- Tracker : SESSION_TRACK_SYSTEM_VARIABLES
 -- statement_id
-<<<<<<< HEAD
--- 80
-||||||| 238b3c022af
--- 76
-=======
--- 79
->>>>>>> ps/release-8.4.2-2
+-- 83
 
 -- Tracker : SESSION_TRACK_STATE_CHANGE
 -- 1
@@ -483,13 +327,7 @@ RETURN x;
 END |
 -- Tracker : SESSION_TRACK_SYSTEM_VARIABLES
 -- statement_id
-<<<<<<< HEAD
--- 89
-||||||| 238b3c022af
--- 85
-=======
--- 88
->>>>>>> ps/release-8.4.2-2
+-- 92
 
 Warnings:
 Warning	1287	'utf8mb3' is deprecated and will be removed in a future release. Please use utf8mb4 instead
@@ -504,13 +342,7 @@ f4()
 -- character_set_results
 -- utf8mb3
 -- statement_id
-<<<<<<< HEAD
--- 91
-||||||| 238b3c022af
--- 87
-=======
--- 90
->>>>>>> ps/release-8.4.2-2
+-- 94
 
 -- Tracker : SESSION_TRACK_STATE_CHANGE
 -- 1
@@ -537,26 +369,14 @@ CLOSE cur1;
 END |
 -- Tracker : SESSION_TRACK_SYSTEM_VARIABLES
 -- statement_id
-<<<<<<< HEAD
--- 97
-||||||| 238b3c022af
--- 93
-=======
--- 96
->>>>>>> ps/release-8.4.2-2
+-- 100
 
 CALL cursor1();
 v1
 6
 -- Tracker : SESSION_TRACK_SYSTEM_VARIABLES
 -- statement_id
-<<<<<<< HEAD
--- 111
-||||||| 238b3c022af
--- 107
-=======
--- 110
->>>>>>> ps/release-8.4.2-2
+-- 114
 -- transaction_isolation
 -- READ-COMMITTED
 
@@ -581,26 +401,14 @@ CLOSE c2;
 END |
 -- Tracker : SESSION_TRACK_SYSTEM_VARIABLES
 -- statement_id
-<<<<<<< HEAD
--- 112
-||||||| 238b3c022af
--- 108
-=======
--- 111
->>>>>>> ps/release-8.4.2-2
+-- 115
 
 CALL cursor2();
 (x+y)
 2
 -- Tracker : SESSION_TRACK_SYSTEM_VARIABLES
 -- statement_id
-<<<<<<< HEAD
--- 119
-||||||| 238b3c022af
--- 115
-=======
--- 118
->>>>>>> ps/release-8.4.2-2
+-- 122
 -- transaction_isolation
 -- READ-COMMITTED
 
@@ -612,13 +420,7 @@ session state sent as part of above SELECT
 DROP DATABASE wl7766;
 -- Tracker : SESSION_TRACK_SYSTEM_VARIABLES
 -- statement_id
-<<<<<<< HEAD
--- 121
-||||||| 238b3c022af
--- 117
-=======
--- 120
->>>>>>> ps/release-8.4.2-2
+-- 124
 
 -- Tracker : SESSION_TRACK_SCHEMA
 -- 
@@ -632,35 +434,17 @@ SET @@session.session_track_state_change=ON;
 -- session_track_state_change
 -- ON
 -- statement_id
-<<<<<<< HEAD
--- 122
-||||||| 238b3c022af
--- 118
-=======
--- 121
->>>>>>> ps/release-8.4.2-2
+-- 125
 
 CREATE DATABASE bug19550875;
 -- Tracker : SESSION_TRACK_SYSTEM_VARIABLES
 -- statement_id
-<<<<<<< HEAD
--- 123
-||||||| 238b3c022af
--- 119
-=======
--- 122
->>>>>>> ps/release-8.4.2-2
+-- 126
 
 USE bug19550875;
 -- Tracker : SESSION_TRACK_SYSTEM_VARIABLES
 -- statement_id
-<<<<<<< HEAD
--- 124
-||||||| 238b3c022af
--- 120
-=======
--- 123
->>>>>>> ps/release-8.4.2-2
+-- 127
 
 -- Tracker : SESSION_TRACK_SCHEMA
 -- bug19550875
@@ -671,24 +455,12 @@ USE bug19550875;
 CREATE TABLE t1 (a int);
 -- Tracker : SESSION_TRACK_SYSTEM_VARIABLES
 -- statement_id
-<<<<<<< HEAD
--- 125
-||||||| 238b3c022af
--- 121
-=======
--- 124
->>>>>>> ps/release-8.4.2-2
+-- 128
 
 INSERT INTO t1 VALUES (1), (2);
 -- Tracker : SESSION_TRACK_SYSTEM_VARIABLES
 -- statement_id
-<<<<<<< HEAD
--- 126
-||||||| 238b3c022af
--- 122
-=======
--- 125
->>>>>>> ps/release-8.4.2-2
+-- 129
 
 CREATE PROCEDURE t_cache()
 BEGIN
@@ -701,13 +473,7 @@ SELECT * FROM t1;
 END |
 -- Tracker : SESSION_TRACK_SYSTEM_VARIABLES
 -- statement_id
-<<<<<<< HEAD
--- 127
-||||||| 238b3c022af
--- 123
-=======
--- 126
->>>>>>> ps/release-8.4.2-2
+-- 130
 
 CALL t_cache();
 a
@@ -715,13 +481,7 @@ a
 2
 -- Tracker : SESSION_TRACK_SYSTEM_VARIABLES
 -- statement_id
-<<<<<<< HEAD
--- 130
-||||||| 238b3c022af
--- 126
-=======
--- 129
->>>>>>> ps/release-8.4.2-2
+-- 133
 
 -- Tracker : SESSION_TRACK_STATE_CHANGE
 -- 1
@@ -745,13 +505,7 @@ SELECT * FROM t1 ORDER BY 1;
 END |
 -- Tracker : SESSION_TRACK_SYSTEM_VARIABLES
 -- statement_id
-<<<<<<< HEAD
--- 135
-||||||| 238b3c022af
--- 131
-=======
--- 134
->>>>>>> ps/release-8.4.2-2
+-- 138
 
 CREATE PROCEDURE sel_with_no_session()
 BEGIN
@@ -759,25 +513,13 @@ SELECT * FROM t1 ORDER BY 1;
 END |
 -- Tracker : SESSION_TRACK_SYSTEM_VARIABLES
 -- statement_id
-<<<<<<< HEAD
--- 136
-||||||| 238b3c022af
--- 132
-=======
--- 135
->>>>>>> ps/release-8.4.2-2
+-- 139
 
 #cleanup
 DROP DATABASE bug19550875;
 -- Tracker : SESSION_TRACK_SYSTEM_VARIABLES
 -- statement_id
-<<<<<<< HEAD
--- 137
-||||||| 238b3c022af
--- 133
-=======
--- 136
->>>>>>> ps/release-8.4.2-2
+-- 140
 
 -- Tracker : SESSION_TRACK_SCHEMA
 -- 
