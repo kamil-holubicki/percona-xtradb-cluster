@@ -885,6 +885,7 @@ sub main {
 
       init_timers();
       run_worker($server_port, $child_num);
+      print("KH: MTR worker $child_num exited\n");
       exit(1);
     }
 
@@ -1053,6 +1054,7 @@ sub main {
 
   remove_vardir_subs() if $opt_clean_vardir;
 
+  print("KH: main exit\n");
   exit(0);
 }
 
@@ -1446,7 +1448,7 @@ sub run_test_server ($$$) {
 sub run_worker ($) {
   my ($server_port, $thread_num) = @_;
 
-  $SIG{INT} = sub { exit(1); };
+  $SIG{INT} = sub { print("KH: run worker sub exit\n"); exit(1); };
 
   # Connect to server
   my $server = new IO::Socket::INET(PeerAddr => 'localhost',
@@ -1541,6 +1543,7 @@ sub run_worker ($) {
       $test->write_test($server, "SHUTDOWN_REPORT");
     } elsif ($line eq 'BYE') {
       mtr_report("Server said BYE");
+      print("KH: MTR worker $thread_num exiting 1\n");
       exit($exit_code);
     } else {
       mtr_error("Could not understand server, '$line'");
@@ -1548,6 +1551,7 @@ sub run_worker ($) {
   }
 
   stop_all_servers();
+  print("KH: MTR worker $thread_num exiting 2\n");
   exit(1);
 }
 
@@ -5430,7 +5434,8 @@ sub run_testcase ($) {
       if (IS_WINDOWS) {
         POSIX::_exit(0);    # exit hangs here in ActiveState Perl
       } else {
-        exit(0);
+       print("KH: run testcase exit 1\n");
+       exit(0);
       }
     }
 
@@ -5449,6 +5454,7 @@ sub run_testcase ($) {
       while (1) {
         mtr_milli_sleep(100);
       }
+      print("KH: run testcase exit 2\n");
       exit(0);    # Never reached
     }
 
@@ -5457,14 +5463,17 @@ sub run_testcase ($) {
     if ($opt_wait_all) {
       My::SafeProcess->wait_all();
       mtr_print("All servers exited");
+      print("KH: run testcase exit 3\n");
       exit(1);
     } else {
       my $proc = My::SafeProcess->wait_any();
       if (grep($proc eq $_, started(all_servers()))) {
         mtr_print("Server $proc died");
+        print("KH: run testcase exit 4\m");
         exit(1);
       }
       mtr_print("Unknown process $proc died");
+      print("KH: run testcase exit 5\n");
       exit(1);
     }
   }
