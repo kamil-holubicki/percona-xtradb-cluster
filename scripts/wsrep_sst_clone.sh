@@ -559,7 +559,7 @@ EOF
         fi
         # Before waiting for the Joiner Clone mysql we send out the message this is a SST
         wsrep_log_debug "-> NETCAT signal to nc -w 1 $SST_HOST_STRIPPED $WSREP_SST_OPT_REMOTE_HOSTPORT"
-        echo "SST@$WSREP_SST_OPT_GTID" | nc -w 1 $SST_HOST_STRIPPED $WSREP_SST_OPT_REMOTE_HOSTPORT || :
+        echo "SST@$WSREP_SST_OPT_GTID<EOF>" | nc -w 1 $SST_HOST_STRIPPED $WSREP_SST_OPT_REMOTE_HOSTPORT || :
 
         # We stay on hold now, waiting for the Joiner to expose the service
         wsrep_log_info "-> WAIT for Joiner MySQL to be available nc -w 1 -i 1 $SST_HOST_STRIPPED $WSREP_SST_OPT_REMOTE_HOSTPORT"
@@ -643,7 +643,7 @@ EOF
         # Instruct recipient to shutdown
         # export MYSQL_PWD="$WSREP_SST_OPT_REMOTE_JOINER_PSWD"
         wsrep_log_info "BYPASS SENDING IST_FILE TO JOINER NetCat: nc -w 1 $SST_HOST_STRIPPED $WSREP_SST_OPT_REMOTE_HOSTPORT"
-        echo $WSREP_SST_OPT_GTID | nc -w 1 $SST_HOST_STRIPPED $WSREP_SST_OPT_REMOTE_HOSTPORT || :
+        echo "$WSREP_SST_OPT_GTID<EOF>" | nc -w 1 $SST_HOST_STRIPPED $WSREP_SST_OPT_REMOTE_HOSTPORT || :
         sleep 2
         wsrep_log_debug "-> Exiting with gtid: $WSREP_SST_OPT_GTID"
     fi
@@ -844,7 +844,6 @@ then
      --wsrep_on=0 \
      --secure_file_priv='' \
      --socket="$CLONE_SOCK" \
-     --skip-mysqlx \
      --log_error='$CLONE_ERR' \
      --pid_file='$CLONE_PID_FILE' \
      --plugin-dir='$CLONE_LIBS' \
@@ -893,15 +892,23 @@ then
 
     # WAIT for Donor message
     wsrep_log_debug "-> wait $JOINER_TIMEOUT_WAIT_XST"
-    while [ ! -s  $WSREP_SST_OPT_DATA/XST_FILE.txt ];do
-         if [ "$JOINER_TIMEOUT_WAIT_XST" == "0" ]; then
-            wsrep_log_error "TIMEOUT Waiting for the DONOR MESSAGE"
-            break ;
-         fi
-         sleep 1
 
-        ((JOINER_TIMEOUT_WAIT_XST-=1))
+    until grep -q ".*<EOF>$" "$WSREP_SST_OPT_DATA/XST_FILE.txt" &> /dev/null
+    do
+        if [ "$JOINER_TIMEOUT_WAIT_XST" == "0" ]; then
+            wsrep_log_error "******** FATAL ERROR *********************** "
+            wsrep_log_error "TIMEOUT Waiting for the DONOR MESSAGE"
+            wsrep_log_error "Donor failed to send information"
+            wsrep_log_error "if it will serve SST+IST or only IST."
+            wsrep_log_error "******************************************** "
+            exit 1
+        fi
+        sleep 1
+
+    ((JOINER_TIMEOUT_WAIT_XST-=1))
     done
+    # Now we are sure the whole message is in XST_FILE.txt.
+    # We can safely parse it.
 
     wsrep_log_debug "-> WAIT DIR DONOR MESSAGE DONE"
 
@@ -909,6 +916,7 @@ then
         wsrep_log_info "DONOR SAY IST"
         wsrep_log_debug "-> RECOVER POSITION TO SEND OUT DONOR IST"
          RP_PURGED=`cat $WSREP_SST_OPT_DATA/XST_FILE.txt`
+         RP_PURGED=${RP_PURGED%"<EOF>"}
          wsrep_log_debug "-> POSITION: $RP_PURGED"
          rm -f  $WSREP_SST_OPT_DATA/XST_FILE.txt || :
 #         kill -15 $NC_PID || : > /dev/null 2>&1
@@ -919,6 +927,7 @@ then
          wsrep_log_info "DONOR SAY SST"
          RP_PURGED=`cat $WSREP_SST_OPT_DATA/XST_FILE.txt`
          RP_PURGED_EMERGENCY=${RP_PURGED#"SST@"}
+         RP_PURGED_EMERGENCY=${RP_PURGED_EMERGENCY%"<EOF>"}
          wsrep_log_debug "-> recovered position from DONOR: $RP_PURGED_EMERGENCY"
     fi
 
