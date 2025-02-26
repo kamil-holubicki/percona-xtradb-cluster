@@ -33,11 +33,15 @@ use mtr;
 -- Create table where testcases can insert patterns to
 -- be suppressed
 --
--- with PXC we keep this table in MyISAM to avoid replication
+-- with PXC we want to avoid replication
 -- of suppression added to one node to other nodes of the cluster.
+
+SET @wsrep_on_saved = @@session.wsrep_on;
+SET @@session.wsrep_on = OFF;
 CREATE TABLE test_suppressions (
   pattern VARCHAR(255) NOT NULL
-) engine=MyISAM;
+);
+SET @@session.wsrep_on = @wsrep_on_saved;
 
 --
 -- Table of full messages (not patterns), suppressed by a test while it
@@ -45,12 +49,15 @@ CREATE TABLE test_suppressions (
 -- Primary key is guaranteed to be unique because the prefix includes the
 -- timestamp, which the server guarantees (!) is unique.
 --
--- with PXC we keep this table in MyISAM to avoid replication
+-- with PXC we want to avoid replication
 -- of suppression added to one node to other nodes of the cluster.
+SET @wsrep_on_saved = @@session.wsrep_on;
+SET @@session.wsrep_on = OFF;
 CREATE TABLE asserted_test_suppressions (
   message TEXT NOT NULL,
   PRIMARY KEY(message(100))
-) engine=MyISAM;
+);
+SET @@session.wsrep_on = @wsrep_on_saved;
 
 --
 -- Table of patterns for messages that should be excluded from global
@@ -63,12 +70,15 @@ CREATE TABLE asserted_test_suppressions (
 -- global suppression pattern. Instead, the pattern should match the
 -- error messages for which global suppression should be ignored.
 --
--- with PXC we keep this table in MyISAM to avoid replication
+-- with PXC we want to avoid replication
 -- of suppression added to one node to other nodes of the cluster.
+SET @wsrep_on_saved = @@session.wsrep_on;
+SET @@session.wsrep_on = OFF;
 CREATE TABLE test_ignored_global_suppressions (
   pattern VARCHAR(255) NOT NULL,
   PRIMARY KEY(pattern(255))
-) engine=MyISAM;
+);
+SET @@session.wsrep_on = @wsrep_on_saved;
 
 --
 -- Declare a trigger that makes sure
@@ -469,17 +479,18 @@ INSERT INTO global_suppressions VALUES
  ("Using group replication with Percona XtraDB Cluster is only supported for migration"),
 
  /*
+  KH: TODO: remove below suppressions after testing
    Warnings from Clone plugin
 
    In PXC, the table mtr.test_suppressions is created as MyISAM to avoid
    replication of suppression added to one node to other nodes of the cluster.
- */
+
  ("Non innodb table: mtr.test_suppressions is not cloned and is empty."),
  ("Clone removing all user data for provisioning: Started"),
  ("Clone removing all user data for provisioning: Finished"),
  ("\\[Warning\\] .*Non innodb table: .* is not cloned and is empty."),
  ("\\[ERROR\\] .*MY-\\d+.*clone_check_recovery_crashpoint.*"),
-
+*/
  /*
    Warnings/errors seen when server is loaded with keyring plugin without
    enabling pxc_encrypt_cluster_traffic.
@@ -504,8 +515,11 @@ BEGIN
   -- Protect the mark on lines that match an 'ignore suppression' pattern.
   --
   SET GLOBAL regexp_time_limit = 0;
+  SET @wsrep_on_saved = @@session.wsrep_on;
+  SET @@session.wsrep_on = OFF;
   UPDATE error_log el, test_ignored_global_suppressions igs
     SET suspicious = 2 WHERE el.line REGEXP igs.pattern;
+  SET @@session.wsrep_on = @wsrep_on_saved;
   --
   -- Remove the mark from lines that are suppressed by global suppressions.
   --
@@ -524,9 +538,12 @@ BEGIN
   -- Remove mark from lines that are suppressed by test specific suppressions
   --
   SET GLOBAL regexp_time_limit = 0;
+  SET @wsrep_on_saved = @@session.wsrep_on;
+  SET @@session.wsrep_on = OFF;
   UPDATE error_log el, test_suppressions ts
     SET suspicious=0
       WHERE el.suspicious=1 AND el.line REGEXP ts.pattern;
+  SET @@session.wsrep_on = @wsrep_on_saved;
   SET GLOBAL regexp_time_limit = DEFAULT;
 END$$
 
@@ -539,9 +556,12 @@ BEGIN
   -- context.
   --
   SET GLOBAL regexp_time_limit = 0;
+  SET @wsrep_on_saved = @@session.wsrep_on;
+  SET @@session.wsrep_on = OFF;
   UPDATE error_log el, asserted_test_suppressions ats
     SET suspicious=0
       WHERE el.suspicious=1 AND el.line = ats.message;
+  SET @@session.wsrep_on = @wsrep_on_saved;
   SET GLOBAL regexp_time_limit = DEFAULT;
 END$$
 
@@ -576,20 +596,15 @@ BEGIN
   END IF;
 
   -- Cleanup for next test
-  IF @@wsrep_on = 1 THEN
-    -- The TRUNCATE should not be replicated under Galera
-    -- as it causes the custom suppressions on the other
-    -- nodes to be deleted as well
-    SET wsrep_on = 0;
-    TRUNCATE test_suppressions;
-    TRUNCATE test_ignored_global_suppressions;
-    TRUNCATE asserted_test_suppressions;
-    SET wsrep_on = 1;
-  ELSE 
-    TRUNCATE test_suppressions;
-    TRUNCATE test_ignored_global_suppressions;
-    TRUNCATE asserted_test_suppressions;
-  END IF;    
+  -- The TRUNCATE should not be replicated under Galera
+  -- as it causes the custom suppressions on the other
+  -- nodes to be deleted as well
+  SET @wsrep_on_saved = @@session.wsrep_on;
+  SET @@session.wsrep_on = OFF;
+  TRUNCATE test_suppressions;
+  TRUNCATE test_ignored_global_suppressions;
+  TRUNCATE asserted_test_suppressions;
+  SET @@session.wsrep_on = @wsrep_on_saved;
 
   DROP TABLE error_log;
 
@@ -603,7 +618,10 @@ END$$
 CREATE DEFINER=root@localhost
 PROCEDURE add_suppression(pattern VARCHAR(255))
 BEGIN
+  SET @wsrep_on_saved = @@session.wsrep_on;
+  SET @@session.wsrep_on = OFF;
   INSERT INTO test_suppressions (pattern) VALUES (pattern);
+  SET @@session.wsrep_on = @wsrep_on_saved;
 END
 */$$
 
