@@ -67,8 +67,6 @@ int wsrep_init_vars() {
 Toggling of the value inside function or transaction is not allowed
 @return false if no error encountered with check else return true. */
 bool wsrep_on_check(sys_var *self, THD *thd, set_var *var) {
-  if (!wsrep_provider_set) return false;
-
   bool new_wsrep_on = (bool)var->save_result.ulonglong_value;
 
   // if (!thd->security_context()->check_access(SUPER_ACL)) return true;
@@ -120,8 +118,6 @@ bool wsrep_on_update(sys_var *, THD *thd, enum_var_type) {
   wsrep_on = off suggest node-local operation. Avoid logging
   these operations to binlog as they could write events
   to binlog with MySQL XID that could duplicate with WSREP XID. */
-
-  if (!wsrep_provider_set) return false;
 
   if (!thd->variables.wsrep_on &&
       thd->variables.wsrep_saved_binlog_state ==
