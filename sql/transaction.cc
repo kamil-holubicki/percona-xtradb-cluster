@@ -565,6 +565,16 @@ bool trans_commit_stmt(THD *thd, bool ignore_global_read_lock) {
             thd))
       LogErr(WARNING_LEVEL, ER_TRX_GTID_COLLECT_REJECT);
 
+#ifdef WITH_WSREP
+  // KH: MyIsam does not register itself in m_ha_list, so if it is the only
+  // SE (no binlog), we don't get to the transaction cleanup
+  // where tracker.clear_known_engine() is called.
+  // This is workaround for commit 9e1c2f9e.
+  // https://bugs.mysql.com/bug.php?id=117618
+  if (!thd->in_active_multi_stmt_transaction()) {
+    thd->get_transaction()->cleanup();
+  }
+#endif
 #if 0
   /* TODO: (G-4) Krunal
   streaming replication transaction flow will regularly append

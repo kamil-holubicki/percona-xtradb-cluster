@@ -67,5 +67,4 @@ Server disconnected
 ok
 SET GLOBAL mysqlx_interactive_timeout = DEFAULT;
 SET GLOBAL mysqlx_wait_timeout = DEFAULT;
-# Syncing with status [ 'Mysqlx_sessions' == 0 ]
 DROP USER temp_user@localhost;

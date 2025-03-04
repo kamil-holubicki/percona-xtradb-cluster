@@ -112,8 +112,8 @@ Mysqlx.Error {
   sql_state: "HY000"
 }
 
-in main, line 104:ERROR: Invalid number of arguments for macro Assert_no_attribute_inserted, expected:0 actual:1
-  argument: "%TEST_KEY%"
+Login OK
+[Assert that no session connect attributes were inserted]
 closing session test_session.II.1.a
 Mysqlx.Ok {
   msg: "bye!"
@@ -153,8 +153,8 @@ Mysqlx.Error {
   sql_state: "HY000"
 }
 
-in main, line 129:ERROR: Invalid number of arguments for macro Assert_no_attribute_inserted, expected:0 actual:1
-  argument: "%TEST_KEY%"
+Login OK
+[Assert that no session connect attributes were inserted]
 closing session test_session.II.2.a
 Mysqlx.Ok {
   msg: "bye!"
@@ -194,8 +194,8 @@ Mysqlx.Error {
   sql_state: "HY000"
 }
 
-in main, line 153:ERROR: Invalid number of arguments for macro Assert_no_attribute_inserted, expected:0 actual:1
-  argument: "%TEST_KEY%"
+Login OK
+[Assert that no session connect attributes were inserted]
 closing session test_session.II.3.a
 Mysqlx.Ok {
   msg: "bye!"
@@ -235,8 +235,8 @@ Mysqlx.Error {
   sql_state: "HY000"
 }
 
-in main, line 178:ERROR: Invalid number of arguments for macro Assert_no_attribute_inserted, expected:0 actual:1
-  argument: "%TEST_KEY%"
+Login OK
+[Assert that no session connect attributes were inserted]
 closing session test_session.II.4.a
 Mysqlx.Ok {
   msg: "bye!"
@@ -276,8 +276,8 @@ Mysqlx.Error {
   sql_state: "HY000"
 }
 
-in main, line 202:ERROR: Invalid number of arguments for macro Assert_no_attribute_inserted, expected:0 actual:1
-  argument: "%TEST_KEY%"
+Login OK
+[Assert that no session connect attributes were inserted]
 closing session test_session.II.5.a
 Mysqlx.Ok {
   msg: "bye!"
@@ -330,8 +330,8 @@ Mysqlx.Error {
   sql_state: "HY000"
 }
 
-in main, line 238:ERROR: Invalid number of arguments for macro Assert_no_attribute_inserted, expected:0 actual:1
-  argument: "%TEST_KEY%"
+Login OK
+[Assert that no session connect attributes were inserted]
 closing session test_session.III.2.a
 Mysqlx.Ok {
   msg: "bye!"
@@ -350,8 +350,8 @@ Mysqlx.Error {
   sql_state: "HY000"
 }
 
-in main, line 250:ERROR: Invalid number of arguments for macro Assert_no_attribute_inserted, expected:0 actual:1
-  argument: "%TEST_KEY%"
+Login OK
+[Assert that no session connect attributes were inserted]
 closing session test_session.III.2.b
 Mysqlx.Ok {
   msg: "bye!"
@@ -373,7 +373,7 @@ switched to session default
 connecting...
 active session is now 'test_session.IV.1_xtest_client_2'
 Login OK
-in main, line 267:ERROR: Undefined macro Wait_for_global_status_variable
+Verify [Global status variable "Mysqlx_sessions" needs to have a value of 2]
 [Assert that no session connect attributes were inserted]
 closing session test_session.IV.1_xtest_client_2
 Mysqlx.Ok {

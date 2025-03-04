@@ -51,7 +51,7 @@ Mysqlx.Ok {
   msg: "bye!"
 }
 switched to session default
-in main, line 59:ERROR: Undefined macro Wait_for_global_status_variable
+Verify [Global status variable "Mysqlx_sessions" needs to have a value of 1]
 
 #
 # II.1
