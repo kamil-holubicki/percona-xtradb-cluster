@@ -571,9 +571,9 @@ bool trans_commit_stmt(THD *thd, bool ignore_global_read_lock) {
   // where tracker.clear_known_engine() is called.
   // This is workaround for commit 9e1c2f9e.
   // https://bugs.mysql.com/bug.php?id=117618
-  if (!thd->in_active_multi_stmt_transaction()) {
-    thd->get_transaction()->cleanup();
-  }
+  // if (!thd->in_active_multi_stmt_transaction()) {
+  //   thd->get_transaction()->cleanup();
+  // }
 #endif
 #if 0
   /* TODO: (G-4) Krunal
