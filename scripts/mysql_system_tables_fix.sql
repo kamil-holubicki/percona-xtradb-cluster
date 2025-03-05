@@ -1383,7 +1383,6 @@ INSERT IGNORE INTO mysql.global_grants VALUES ('mysql.pxc.internal.session', 'lo
 INSERT IGNORE INTO mysql.global_grants VALUES ('mysql.pxc.internal.session', 'localhost', 'SESSION_VARIABLES_ADMIN', 'Y');
 INSERT IGNORE INTO mysql.global_grants VALUES ('mysql.pxc.internal.session', 'localhost', 'SET_ANY_DEFINER', 'Y');
 INSERT IGNORE INTO mysql.global_grants VALUES ('mysql.pxc.internal.session', 'localhost', 'ALLOW_NONEXISTENT_DEFINER', 'Y');
-INSERT IGNORE INTO mysql.global_grants VALUES ('mysql.pxc.internal.session', 'localhost', 'SET_USER_ID', 'Y');
 INSERT IGNORE INTO mysql.global_grants VALUES ('mysql.pxc.internal.session', 'localhost', 'SHOW_ROUTINE', 'Y');
 INSERT IGNORE INTO mysql.global_grants VALUES ('mysql.pxc.internal.session', 'localhost', 'SYSTEM_USER', 'Y');
 INSERT IGNORE INTO mysql.global_grants VALUES ('mysql.pxc.internal.session', 'localhost', 'SYSTEM_VARIABLES_ADMIN', 'Y');
