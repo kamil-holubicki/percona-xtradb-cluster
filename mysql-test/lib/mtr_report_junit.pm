@@ -44,6 +44,7 @@ sub mtr_report_stats_junit {
   my $tests    = shift;
   my $filename = shift;
   my $package  = shift;
+  my $skip_system_info = shift;
   my $testinfo;
   my $doc;
 
@@ -99,8 +100,13 @@ sub mtr_report_stats_junit {
         push @{$testcase->{skipped}}, $skipped;
       }
 
-      my $content = $tinfo->{logfile};
-      $content .= "\n" . $tinfo->{comment} if $tinfo->{comment};
+      my $content;
+      if (!$skip_system_info) {
+        $content .= $tinfo->{logfile};
+        $content .= "\n" . $tinfo->{comment} if $tinfo->{comment};
+      } else {
+        $content .= "Skipped (--junit-skip-system-info)."
+      }
       $testcase->{'system-out'} = {content => $content} if $content;
 
       push @testcases, $testcase;

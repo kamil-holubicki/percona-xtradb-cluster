@@ -181,6 +181,7 @@ my $opt_mtr_term_args      = env_or_val(MTR_TERM => "xterm -title %title% -e");
 my $opt_lldb_cmd           = env_or_val(MTR_LLDB => "lldb");
 our $opt_junit_output      = undef;
 our $opt_junit_package     = undef;
+my $opt_junit_skip_system_info = undef;
 my $opt_fs_cleanup_hook = undef;
 my $opt_accept_fail        = 0;
 
@@ -1037,11 +1038,10 @@ sub main {
   exit(0);
 }
 
-sub report_stats($$;$) {
+sub report_stats($$;$)  {
   my ($prefix, $tests, $skip_error) = @_;
-
   if ($opt_junit_output) {
-    mtr_report_stats_junit($tests, $opt_junit_output, $opt_junit_package);
+    mtr_report_stats_junit($tests, $opt_junit_output, $opt_junit_package, $opt_junit_skip_system_info);
   }
 
   mtr_report_stats($prefix, $tests, $skip_error);
@@ -1905,6 +1905,7 @@ sub command_line_setup {
     'help|h'                => \$opt_usage,
     'junit-output=s'        => \$opt_junit_output,
     'junit-package=s'       => \$opt_junit_package,
+    'junit-skip-system-info' => \$opt_junit_skip_system_info,
     'keep-ndbfs'            => \$opt_keep_ndbfs,
     'max-connections=i'     => \$opt_max_connections,
     'print-testcases'       => \&collect_option,
@@ -8590,6 +8591,8 @@ Misc options
   xml-report=FILE       Generate a XML report file compatible with JUnit.
   junit-output=FILE     Output JUnit test summary XML to FILE.
   junit-package=NAME    Set the JUnit package name to NAME for this test run.
+  junit-skip-system-info
+                        Do not include testcase output in case of its failure.
   fs-cleanup-hook=COMMAND
                         Execute custom command (e.g. external storage cleanup)
                         upon test failure (Currently used for ZenFS storages).
