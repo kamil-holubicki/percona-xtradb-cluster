@@ -35,14 +35,14 @@ function set_suites() {
   else # Debug (and everything different from "RelWithDebInfo")
     echo "Setting WORKER_x_MTR_SUITES for BUILD_TYPE=Debug"
     # Unit tests will be executed by worker 1
-    WORKER_1_MTR_SUITES="main|big,innodb|big,x,engines/funcs,funcs_2,opt_trace"
+    WORKER_1_MTR_SUITES="main,innodb,x,engines/funcs,funcs_2,opt_trace"
     WORKER_2_MTR_SUITES="galera,galera_3nodes,wsrep"
-    WORKER_3_MTR_SUITES="rpl|nobig,sys_vars"
-    WORKER_4_MTR_SUITES="group_replication,binlog|nobig,innodb_undo,audit_null,engines/iuds"
+    WORKER_3_MTR_SUITES="rpl,sys_vars"
+    WORKER_4_MTR_SUITES="group_replication,innodb_undo,audit_null,engines/iuds"
     WORKER_5_MTR_SUITES="innodb_fts,json,sysschema,test_service_sql_api,gis"
-    WORKER_6_MTR_SUITES="rpl|big,innodb|nobig,funcs_1,connection_control,federated"
-    WORKER_7_MTR_SUITES="binlog|big,parts,auth_sec,stress,query_rewrite_plugins"
-    WORKER_8_MTR_SUITES="innodb_gis,main|nobig,perfschema,innodb_zip,gcol,jp"
+    WORKER_6_MTR_SUITES="innodb,funcs_1,connection_control,federated"
+    WORKER_7_MTR_SUITES="binlog,parts,auth_sec,stress,query_rewrite_plugins"
+    WORKER_8_MTR_SUITES="innodb_gis,perfschema,innodb_zip,gcol,jp"
   fi
 }
 
