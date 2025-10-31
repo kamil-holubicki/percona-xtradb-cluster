@@ -24,25 +24,25 @@ function set_suites() {
   if [[ "$1" == "RelWithDebInfo" ]]; then
     echo "Setting WORKER_x_MTR_SUITES for BUILD_TYPE=RelWithDebInfo"
     # Unit tests will be executed by worker 1
-    WORKER_1_MTR_SUITES="x,auth_sec,funcs_1,innodb_gis,gcol,gis"
-    WORKER_2_MTR_SUITES="galera,galera_3nodes,wsrep"
-    WORKER_3_MTR_SUITES="rpl|nobig"
-    WORKER_4_MTR_SUITES="group_replication"
-    WORKER_5_MTR_SUITES="rpl|big,perfschema,json,funcs_2,audit_null"
-    WORKER_6_MTR_SUITES="innodb,sys_vars,innodb_zip,connection_control,sysschema,engines/iuds"
-    WORKER_7_MTR_SUITES="main|nobig,parts,engines/funcs,test_service_sql_api,query_rewrite_plugins,opt_trace"
-    WORKER_8_MTR_SUITES="main|big,binlog,stress,innodb_fts,jp,innodb_undo,federated"
+    WORKER_1_MTR_SUITES="jp,gcol,innodb_zip,perfschema,sys_vars"
+    WORKER_2_MTR_SUITES="rpl"
+    WORKER_3_MTR_SUITES="galera"
+    WORKER_4_MTR_SUITES="innodb_fts,binlog,auth_sec,jp,gcol,sys_vars,json"
+    WORKER_5_MTR_SUITES="innodb,query_rewrite_plugins,wsrep,funcs_2,main,stress,auth_sec"
+    WORKER_6_MTR_SUITES="parts,innodb_gis,perfschema,innodb_zip,engines/funcs"
+    WORKER_7_MTR_SUITES="funcs_1,x,sysschema,test_service_sql_api,gis,opt_trace,connection_control,federated,audit_null,engines/iuds,innodb_undo,innodb,galera_3nodes"
+    WORKER_8_MTR_SUITES="group_replication"
   else # Debug (and everything different from "RelWithDebInfo")
     echo "Setting WORKER_x_MTR_SUITES for BUILD_TYPE=Debug"
     # Unit tests will be executed by worker 1
-    WORKER_1_MTR_SUITES="main,innodb,x,engines/funcs,funcs_2,opt_trace"
-    WORKER_2_MTR_SUITES="galera,galera_3nodes,wsrep"
-    WORKER_3_MTR_SUITES="rpl,sys_vars"
-    WORKER_4_MTR_SUITES="group_replication,innodb_undo,audit_null,engines/iuds"
-    WORKER_5_MTR_SUITES="innodb_fts,json,sysschema,test_service_sql_api,gis"
-    WORKER_6_MTR_SUITES="innodb,funcs_1,connection_control,federated"
-    WORKER_7_MTR_SUITES="binlog,parts,auth_sec,stress,query_rewrite_plugins"
-    WORKER_8_MTR_SUITES="innodb_gis,perfschema,innodb_zip,gcol,jp"
+    WORKER_1_MTR_SUITES="jp,gcol,innodb_zip,perfschema,sys_vars"
+    WORKER_2_MTR_SUITES="rpl"
+    WORKER_3_MTR_SUITES="galera"
+    WORKER_4_MTR_SUITES="innodb_fts,binlog,auth_sec,jp,gcol,sys_vars,json"
+    WORKER_5_MTR_SUITES="innodb,query_rewrite_plugins,wsrep,funcs_2,main,stress,auth_sec"
+    WORKER_6_MTR_SUITES="parts,innodb_gis,perfschema,innodb_zip,engines/funcs"
+    WORKER_7_MTR_SUITES="funcs_1,x,sysschema,test_service_sql_api,gis,opt_trace,connection_control,federated,audit_null,engines/iuds,innodb_undo,innodb,galera_3nodes"
+    WORKER_8_MTR_SUITES="group_replication"
   fi
 }
 
