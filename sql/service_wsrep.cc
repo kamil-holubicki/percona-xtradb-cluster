@@ -69,6 +69,17 @@ extern "C" long long wsrep_thd_trx_seqno(const THD *thd) {
   }
 }
 
+extern "C" long long wsrep_thd_trx_depends_on_seqno(const THD *thd) {
+  const wsrep::client_state &cs = thd->wsrep_cs();
+  if (cs.mode() == wsrep::client_state::m_toi) {
+    return cs.toi_meta().depends_on().get();
+  } else if (cs.mode() == wsrep::client_state::m_nbo) {
+    return cs.nbo_meta().depends_on().get();
+  } else {
+    return cs.transaction().ws_meta().depends_on().get();
+  }
+}
+
 extern "C" void wsrep_thd_self_abort(THD *thd) {
   thd->wsrep_cs().bf_abort(wsrep::seqno(0));
 }
