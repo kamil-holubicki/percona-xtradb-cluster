@@ -10834,21 +10834,18 @@ void tdc_remove_table(THD *thd, enum_tdc_remove_table_type remove_type,
   else
     table_cache_manager.assert_owner_all_and_tdc();
 
-<<<<<<< HEAD
 #ifdef WITH_WSREP
     /* if thd was BF aborted, exclusive locks are cancelled */
 #else
-||||||| merged common ancestors
-=======
-  DEBUG_SYNC_C("rm_table_tdc_locked");
 
->>>>>>> ps/release-9.6.0-1
   assert(remove_type == TDC_RT_REMOVE_UNUSED ||
          remove_type == TDC_RT_MARK_FOR_REOPEN ||
          remove_type == TDC_RT_MARK_FOR_REOPEN_AND_INVALIDATE_SHARE ||
          thd->mdl_context.owns_equal_or_stronger_lock(
              MDL_key::TABLE, db, table_name, MDL_EXCLUSIVE));
 #endif /* WITH_WSREP */
+
+  DEBUG_SYNC_C("rm_table_tdc_locked");
 
   key_length = create_table_def_key(db, table_name, key);
 
