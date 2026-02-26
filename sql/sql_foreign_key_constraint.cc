@@ -184,9 +184,28 @@ static std::string build_fk_error_message(THD *thd, bool check_child_access,
       return str_buf.str();
   }
 
+#ifdef WITH_WSREP
+  /* We can still have 8.0 nodes in the cluster. Inconsistency voting protocol
+  used by such nodes uses the whole message string. Let's keep it consistent
+  with old message format (row0ins.cc::row_ins_set_detailed()) */
+  std::string foreign_table_name = tbl->s->table_name.str;
+  bool use_temp_name =
+      ((wsrep_on(thd) && (wsrep_thd_is_toi(thd) || wsrep_thd_is_in_nbo(thd))) &&
+       foreign_table_name.find("#sql-") != std::string::npos);
+
+  if (use_temp_name) {
+    str_buf << " (" << quote_char;
+  } else {
+    str_buf << " (" << quote_char << tbl->s->db.str;
+    str_buf << quote_char << "." << quote_char;
+  }
+  str_buf << (use_temp_name ? "temp_table" : tbl->s->table_name.str)
+          << quote_char << ", CONSTRAINT ";
+#else
   str_buf << " (" << quote_char << tbl->s->db.str;
   str_buf << quote_char << "." << quote_char;
   str_buf << tbl->s->table_name.str << quote_char << ", CONSTRAINT ";
+#endif
   str_buf << quote_char << fk->fk_name.str << quote_char;
   str_buf << " FOREIGN KEY (";
   for (uint k = 0; k < fk->columns; k++) {
