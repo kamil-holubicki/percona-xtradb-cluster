@@ -38,6 +38,13 @@
 #include "sql/sql_base.h"
 #include "sql/sql_class.h"
 #include "sql/table.h"  // TABLE_SHARE_FOREIGN_KEY_INFO
+#include "wsrep_api.h"
+#include "wsrep_mysqld.h"
+
+#ifdef WITH_WSREP
+// KH: the same is in dict0mem.h
+#define WSREP_MAX_SUPPORTED_KEY_LENGTH 3500
+#endif /* WITH_WSREP */
 
 /**
   With the ON CASCADE DELETE/UPDATE clause, deleting from the parent table
@@ -1153,6 +1160,117 @@ static bool on_delete_on_update_set_null(THD *thd, const TABLE *table_p,
   return false;
 }
 
+
+extern bool wsrep_prepare_key_for_innodb(const uchar *cache_key,
+                                         size_t cache_key_len,
+                                         const uchar *row_id, size_t row_id_len,
+                                         wsrep_buf_t *key, size_t *key_len);
+
+static bool wsrep_do_replication(THD *thd) {
+  return wsrep_on(thd) && wsrep_thd_is_local(thd) &&
+         !wsrep_consistency_check(thd) &&
+         thd->variables.binlog_format == BINLOG_FORMAT_ROW;
+}
+
+bool wsrep_append_fk_keys(THD *thd, const TABLE *table_p, const TABLE *table_c, TABLE_SHARE_FOREIGN_KEY_INFO *fk, enum_fk_dml_type dml_type) {
+/* We need to store key(s) related to the parent table rows involved into this
+     operation.
+    key_value - the new key value
+    old_key_value - the old key value. It is present only for update queries.
+   */
+
+  if(!wsrep_do_replication(thd)) {
+    return false;
+  }
+
+  uint child_key_idx =
+    get_key_index(table_c, fk->columns, fk->referencing_column_names);
+
+  uint parent_key_idx =
+      get_key_index(table_p, fk->columns, fk->referenced_column_names);
+
+  KEY *key_info_p = table_p->key_info + parent_key_idx;
+  KEY *key_info_c = table_c->key_info + child_key_idx;
+
+
+  char cache_key[513] = {'\0'};
+  int cache_key_len;
+
+  char *ptr = cache_key;
+  strncpy(ptr, table_p->s->db.str, sizeof(cache_key) - 1);
+  cache_key_len = strlen(ptr);
+  cache_key[cache_key_len] = '\0';
+  cache_key_len++;
+  ptr += cache_key_len;
+  strncpy(ptr, table_p->s->table_name.str, sizeof(cache_key) - cache_key_len - 1);
+  cache_key_len += strlen(ptr);
+  cache_key[cache_key_len] = '\0';
+  cache_key_len++;
+
+  auto key_type = (dml_type == enum_fk_dml_type::FK_UPDATE && wsrep_protocol_version < WsrepVersion::V4)
+                  ? WSREP_SERVICE_KEY_SHARED
+                  : WSREP_SERVICE_KEY_REFERENCE;
+
+  uchar key[WSREP_MAX_SUPPORTED_KEY_LENGTH + 1] = {'\0'};
+  size_t len = WSREP_MAX_SUPPORTED_KEY_LENGTH;
+  key[0] = (char)0;  // KH: check this vs innodb. This is some magic flag.
+
+  uchar key_value[MAX_KEY_LENGTH];
+
+  int key_len = 0;
+  key_copy_fk(key_value, sizeof(key_value), table_c->record[0], key_info_c,
+              key_info_p, true, &key_len);
+
+  memcpy(key + 1, key_value, std::min((size_t)key_len, sizeof(key) - 1));
+  len = std::min(len, (size_t)key_len + 1);
+
+  wsrep_buf_t wkey_part[3];
+  wsrep_key_t wkey = {wkey_part, 3};
+  if (!wsrep_prepare_key_for_innodb((const uchar *)cache_key, cache_key_len,
+                                    (const uchar *)key, len, wkey_part,
+                                    &wkey.key_parts_num)) {
+    WSREP_WARN("key prepare failed for cascaded FK: %s",
+               (wsrep_thd_query(thd)) ? wsrep_thd_query(thd) : "void");
+    return true;
+  }
+  auto rcode = wsrep_thd_append_key(thd, &wkey, 1, key_type);
+  if (rcode) {
+    DBUG_PRINT("wsrep", ("row key failed: %d", rcode));
+    WSREP_ERROR("Appending cascaded fk row key failed: %s, %d",
+                (wsrep_thd_query(thd)) ? wsrep_thd_query(thd) : "void", rcode);
+    return true;
+  }
+
+  // For update, we need to lock both rows in the parent table
+  if (dml_type == enum_fk_dml_type::FK_UPDATE) {
+    key_len = 0;
+    key_copy_fk(key_value, sizeof(key_value), table_c->record[1], key_info_c,
+                key_info_p, true, &key_len);
+    // actually not sure what to do if we fail...
+
+    key[0] = (char)0;  // KH: check this vs innodb. This is some magic flag.
+    memcpy(key + 1, key_value, std::min((size_t)key_len, sizeof(key) - 1));
+    len = std::min(len, (size_t)key_len + 1);
+
+    if (!wsrep_prepare_key_for_innodb((const uchar *)cache_key, cache_key_len,
+                                      (const uchar *)key, len, wkey_part,
+                                      &wkey.key_parts_num)) {
+      WSREP_WARN("key prepare failed for cascaded FK: %s",
+                (wsrep_thd_query(thd)) ? wsrep_thd_query(thd) : "void");
+      return true;
+    }
+    rcode = wsrep_thd_append_key(thd, &wkey, 1, key_type);
+    if (rcode) {
+      DBUG_PRINT("wsrep", ("row key failed: %d", rcode));
+      WSREP_ERROR("Appending cascaded fk row key failed: %s, %d",
+                  (wsrep_thd_query(thd)) ? wsrep_thd_query(thd) : "void", rcode);
+      return true;
+    }
+  }
+  return false;
+}
+
+
 /**
  * @brief Checks foreign key constraint on child table.
  *
@@ -1342,6 +1460,9 @@ static bool check_child_fk_ref(THD *thd, const TABLE *table_p, TABLE *table_c,
                                      key_value, key_len, chain, &error)) {
       return true;  // Error is already reported.
     }
+#ifdef WITH_WSREP
+    wsrep_append_fk_keys(thd, table_p, table_c, fk_c, dml_type);
+#endif
   } else {
     if (error != HA_ERR_END_OF_FILE && error != HA_ERR_KEY_NOT_FOUND) {
       table_c->file->print_error(error, MYF(0));
@@ -1488,8 +1609,14 @@ static bool check_all_child_fk_ref(THD *thd, const TABLE *table_p,
 static bool check_parent_fk_ref(THD *thd, const TABLE *table_c, TABLE *table_p,
                                 TABLE_SHARE_FOREIGN_KEY_INFO *fk,
                                 enum_fk_dml_type dml_type) {
+#ifdef WITH_WSREP
+  assert(dml_type == enum_fk_dml_type::FK_UPDATE ||
+         dml_type == enum_fk_dml_type::FK_INSERT ||
+         dml_type == enum_fk_dml_type::FK_DELETE);
+#else
   assert(dml_type == enum_fk_dml_type::FK_UPDATE ||
          dml_type == enum_fk_dml_type::FK_INSERT);
+#endif
 
   DBUG_PRINT(
       "fk", ("check_parent_fk_ref(): child table = %s.%s, parent table "
@@ -1574,6 +1701,10 @@ static bool check_parent_fk_ref(THD *thd, const TABLE *table_c, TABLE *table_p,
                 table_p->s->db.str, table_p->s->table_name.str));
     return report_no_referenced_row_error(thd, table_c, fk);
   }
+// KH: store the key of the parent table here. table_p db/name, and key_value or use table_p=>record[0]
+#ifdef WITH_WSREP
+  wsrep_append_fk_keys(thd, table_p, table_c, fk, dml_type);
+#endif /* WITH_WSREP */
 
   DBUG_PRINT("fk", ("check_parent_fk_ref(): Row found in parent table %s.%s",
                     table_p->s->db.str, table_p->s->table_name.str));

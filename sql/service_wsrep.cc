@@ -27,6 +27,7 @@
 #include "wsrep/key.hpp"
 #include "wsrep_thd.h"
 #include "wsrep_trans_observer.h"
+// #include "kh_debug.h"
 
 extern "C" bool wsrep_on(const THD *thd) { return bool(WSREP(thd)); }
 
@@ -268,7 +269,9 @@ extern "C" int wsrep_thd_append_key(THD *thd, const struct wsrep_key *key,
   int ret = 0;
   for (int i = 0; i < n_keys && ret == 0; ++i) {
     wsrep::key wsrep_key(map_key_type(key_type));
+    //KH_DEBUG("Appending wsrep key");
     for (size_t kp = 0; kp < key[i].key_parts_num; ++kp) {
+      // KH_DUMP_BUFFER(key[i].key_parts[kp].ptr, key[i].key_parts[kp].len);
       wsrep_key.append_key_part(key[i].key_parts[kp].ptr,
                                 key[i].key_parts[kp].len);
     }

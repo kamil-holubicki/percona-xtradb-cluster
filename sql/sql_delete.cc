@@ -131,6 +131,15 @@ bool DeleteCurrentRowAndProcessTriggers(THD *thd, TABLE *table,
     }
   }
 
+#ifdef WITH_WSREP
+  /* Append parrent table keys */
+  if (use_sql_fk_checks_for_table(thd, table)) {
+    if (check_all_parent_fk_ref(thd, table, enum_fk_dml_type::FK_DELETE)) {
+      return thd->is_error();
+    }
+  }
+#endif
+
   if (const int delete_error = table->file->ha_delete_row(table->record[0]);
       delete_error != 0) {
     myf error_flags = MYF(0);

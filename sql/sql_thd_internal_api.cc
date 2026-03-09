@@ -402,6 +402,11 @@ my_thread_id thd_thread_id(const THD *thd) { return (thd->thread_id()); }
 
 bool thd_is_sql_fk_checks_enabled() {
   if (current_thd == nullptr) return true;
+#ifdef WITH_WSREP
+  // quick patch that enables InnoDB-level handling of FK dependencies in
+  // certification keys. This stuff needs to be moved to SQL layer
+//  if(wsrep_on(current_thd)) return false;
+#endif
   return (is_sql_fk_checks_enabled(current_thd));
 }
 
