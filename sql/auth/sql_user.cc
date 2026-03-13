@@ -2063,6 +2063,56 @@ bool set_and_validate_user_attributes(
   return (false);
 }
 
+#ifdef WITH_WSREP
+static std::string sql_escape(const std::string &s) {
+  std::string out;
+  out.reserve(s.size() * 2);
+  for (char c : s) {
+    if (c == '\'')
+      out += "''";
+    else
+      out += c;
+  }
+  return out;
+}
+
+bool rewrite_set_password_query(THD *thd, const LEX_USER *lex_user,
+                                const char *new_password) {
+#if 1
+    std::string user = sql_escape(
+        lex_user->user.str ? std::string(lex_user->user.str, lex_user->user.length) : "");
+
+    std::string host = sql_escape(
+        lex_user->host.str ? std::string(lex_user->host.str, lex_user->host.length) : "");
+
+    std::string pass = sql_escape(
+        new_password ? new_password : "");
+#else
+  std::string user = lex_user->user.str ? std::string(lex_user->user.str,
+                                                      lex_user->user.length)
+                                        : "";
+
+  std::string host = lex_user->host.str ? std::string(lex_user->host.str,
+                                                      lex_user->host.length)
+                                        : "";
+
+  std::string pass = new_password ? new_password : "";
+#endif
+  std::string query =
+      "SET PASSWORD FOR '" + user + "'@'" + host + "'='" + pass + "'";
+
+  char *buff = (char *)thd->alloc(query.size() + 1);
+  if (!buff) {
+    my_error(ER_OUTOFMEMORY, MYF(ME_FATALERROR), 0);
+    return true;
+  }
+
+  memcpy(buff, query.c_str(), query.size() + 1);
+  thd->set_query(buff, query.size());
+  return false;
+}
+#endif /* WITH_WSREP */
+
 /**
   Change a password hash for a user.
 
@@ -2125,13 +2175,13 @@ bool change_password(THD *thd, LEX_USER *lex_user, const char *new_password,
   */
   Save_and_Restore_binlog_format_state binlog_format_state(thd);
 #ifdef WITH_WSREP
-  /*
-    Rewrite query to ensure it is safe to replay on slave thread with proper
-    user context established (this is important if original query fails to
-    explictly specify the user context and if such query is replicated
-    w/o re-writting then applier will not be able to establish user context).
-  */
   if (WSREP(thd) && !thd->wsrep_applier) {
+    /*
+      Rewrite query to ensure it is safe to replay on slave thread with proper
+      user context established (this is important if original query fails to
+      explictly specify the user context and if such query is replicated
+      w/o re-writting then applier will not be able to establish user context).
+    */
     { /* Critical section */
       Acl_cache_lock_guard acl_cache_rlock(thd, Acl_cache_lock_mode::READ_MODE);
 
@@ -2154,22 +2204,7 @@ bool change_password(THD *thd, LEX_USER *lex_user, const char *new_password,
       }
     }
 
-
-
-    size_t query_length_max = strlen("SET PASSWORD FOR ''@''=''") + 3 * 120 + 1;
-    char *buff = (char *)thd->alloc(query_length_max);
-    if (!buff) {
-      my_error(ER_OUTOFMEMORY, MYF(ME_FATALERROR), 0);
-      return true;
-    }
-
-    ulong query_length =
-        snprintf(buff, query_length_max,
-                 "SET PASSWORD FOR '%-.120s'@'%-.120s'='%-.120s'",
-                 lex_user->user.str ? lex_user->user.str : "",
-                 lex_user->host.str ? lex_user->host.str : "", new_password);
-    buff[query_length_max - 1] = 0;
-    thd->set_query(buff, query_length);
+    rewrite_set_password_query(thd, lex_user, new_password);
 
     if ((ret = open_grant_tables(thd, tables, &transactional_tables, false,
                                  WSREP_MYSQL_DB, "user"))) {

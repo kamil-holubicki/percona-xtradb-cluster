@@ -569,4 +569,7 @@ extern LEX_CSTRING PXC_INTERNAL_SESSION_HOST;
 
 bool wsrep_keyring_component_loaded();
 
+std::string rewrite_received_malformed_query(const char *query,
+                                             size_t query_len);
+
 #endif /* WSREP_MYSQLD_H */

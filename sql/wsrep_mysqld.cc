@@ -35,6 +35,7 @@
 
 #include <cstdio>
 #include <cstdlib>
+#include <regex>
 #include <sstream>
 #include <string>
 
@@ -3480,4 +3481,50 @@ bool wsrep_keyring_component_loaded() {
     return masterKeyManager->IsServiceAlive();
   }
   return false;
+}
+
+static std::string sql_escape(const std::string &s) {
+  std::string out;
+  out.reserve(s.size() * 2);
+  for (char c : s) {
+    if (c == '\'')
+      out += "''";
+    else
+      out += c;
+  }
+  return out;
+}
+
+/* Versions <= 8.0.45 have a bug PXC-4965. Source when rewriting
+  the SET PASSWORD query, does not escape potential ' characters.
+  This causes the replicated query to be like e.g.
+  SET PASSWORD FOR 'user'@'host'='a'b'
+  which is not correct.
+  Handle the situation when received query originates from such a source.
+  If any other such queries are discovered in the future, here is the place
+  to fix them.
+  */
+std::string rewrite_received_malformed_query(const char *query,
+                                             size_t query_len) {
+  static const std::regex broken_re(
+      R"(^SET PASSWORD FOR '([^']*)'@'([^']*)'='(.*)'[[:space:]]*$)");
+
+  std::string query_str(query, query_len);
+  std::string query_ret = query_str;
+  std::smatch m;
+
+  std::string user, host, pass, rewritten;
+
+  if (std::regex_match(query_str, m, broken_re)) {
+    // Broken sender (PXC-4965)
+    user = m[1];
+    host = m[2];
+    pass = m[3];
+
+    // Re-escape cleanly
+    query_ret = "SET PASSWORD FOR '" + sql_escape(user) + "'@'" +
+                sql_escape(host) + "'='" + sql_escape(pass) + "'";
+  }
+
+  return query_ret;
 }
