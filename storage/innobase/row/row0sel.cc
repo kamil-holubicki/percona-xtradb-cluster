@@ -4924,6 +4924,21 @@ rec_loop:
         case DB_SUCCESS:
           break;
         case DB_SKIP_LOCKED:
+#ifdef WITH_WSREP
+          /* Native InnoDB expects the above lock request to
+             to be granted, or actual error.
+             However, wsrep patch in rec_lock_check_conflict()
+             causes any type of lock request to potentially
+             wait for high priority appliers, causing DB_SKIP_LOCKED
+             return value here. Raise a deadlock error, to avoid
+             the debug level assertion below, or fatal error in
+             release builds. */
+          if (wsrep_on(trx->mysql_thd)) {
+            err = DB_DEADLOCK;
+            goto lock_wait_or_error;
+          }
+          [[fallthrough]];
+#endif /* WITH_WSREP */
         case DB_LOCK_NOWAIT:
           ut_d(ut_error);
         default:
@@ -5050,6 +5065,21 @@ rec_loop:
           case DB_SUCCESS:
             break;
           case DB_SKIP_LOCKED:
+#ifdef WITH_WSREP
+            /* Native InnoDB expects the above lock request to
+               to be granted, or actual error.
+               However, wsrep patch in rec_lock_check_conflict()
+               causes any type of lock request to potentially
+               wait for high priority appliers, causing DB_SKIP_LOCKED
+               return value here. Raise a deadlock error, to avoid
+               the debug level assertion below, or fatal error in
+               release builds. */
+            if (wsrep_on(trx->mysql_thd)) {
+              err = DB_DEADLOCK;
+              goto lock_wait_or_error;
+            }
+            [[fallthrough]];
+#endif /* WITH_WSREP */
           case DB_LOCK_NOWAIT:
             ut_d(ut_error);
           default:
