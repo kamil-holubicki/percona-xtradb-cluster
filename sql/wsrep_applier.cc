@@ -32,7 +32,7 @@
 
 /*
   read the first event from (*buf). The size of the (*buf) is (*buf_len).
-  At the end (*buf) is shitfed to point to the following event or NULL and
+  At the end (*buf) is shifted to point to the following event or NULL and
   (*buf_len) will be changed to account just being read bytes of the 1st event.
 */
 
@@ -128,10 +128,12 @@ int wsrep_apply_events(THD *thd, Relay_log_info *rli __attribute__((unused)),
 
   DBUG_ENTER("wsrep_apply_events");
 
-  if (!buf_len)
+  if (!buf_len) {
     WSREP_DEBUG("Empty apply event found while processing write-set: %lld",
                 (long long)wsrep_thd_trx_seqno(thd));
-
+    fprintf(stderr, "KH: assert(0) in wsrep_apply_events\n");
+    assert(0);  // KH:
+  }
   if (thd->wsrep_bin_log_flag_save == 0) {
     thd->wsrep_bin_log_flag_save = thd->variables.option_bits & OPTION_BIN_LOG;
   }
