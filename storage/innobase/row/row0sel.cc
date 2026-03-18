@@ -5114,6 +5114,9 @@ rec_loop:
           case DB_SUCCESS:
             break;
           case DB_SKIP_LOCKED:
+          // KH:
+          assert(0);
+          [[fallthrough]];
           case DB_LOCK_NOWAIT:
             ut_d(ut_error);
           default:
