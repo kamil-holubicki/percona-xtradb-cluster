@@ -772,8 +772,7 @@ read_cnf()
         ssl_key=$(parse_cnf mysqld ssl-key "")
     fi
 
-    pxc_encrypt_cluster_traffic=$(parse_cnf mysqld pxc-encrypt-cluster-traffic "")
-    pxc_encrypt_cluster_traffic=$(normalize_boolean "$pxc_encrypt_cluster_traffic" "on")
+    pxc_encrypt_cluster_traffic="off"
 
     auto_upgrade=$(parse_cnf sst auto-upgrade "")
     auto_upgrade=$(normalize_boolean "$auto_upgrade" "on")
@@ -2018,7 +2017,7 @@ then
         fi
 
         # Before the real SST,send the sst-info
-        wsrep_log_debug "Streaming SST meta-info file before SST"
+        wsrep_log_debug "Streaming SST meta-info file before SST encrypt ${encrypt}"
         FILE_TO_STREAM=$SST_INFO_FILE
         send_data_from_donor_to_joiner "$donor_tmpdir" "${stagemsg}-sst-info"
 
@@ -2230,8 +2229,11 @@ then
         #
         # Extract information from the sst-info file that was just received
         #
+        wsrep_log_info "$(cat "$sst_file_info_path")"
         XB_GTID_INFO_FILE_PATH="${STATDIR}/${XB_GTID_INFO_FILE}"
         parse_sst_info "$sst_file_info_path" sst galera-gtid "" > "$XB_GTID_INFO_FILE_PATH"
+        wsrep_log_info "XB_GTID_INFO_FILE_PATH: "$XB_GTID_INFO_FILE_PATH""
+        wsrep_log_info "$(cat "$XB_GTID_INFO_FILE_PATH")"
 
         DONOR_BINLOGNAME=$(parse_sst_info "$sst_file_info_path" sst binlog-name "")
         DONOR_MYSQL_VERSION=$(parse_sst_info "$sst_file_info_path" sst mysql-version "")
@@ -2607,6 +2609,8 @@ then
         wsrep_log_info "...........post-processing done"
     fi
 
+    XB_GTID_INFO_FILE_PATH="${STATDIR}/${XB_GTID_INFO_FILE}"
+    wsrep_log_info "XB_GTID_INFO_FILE_PATH: "$XB_GTID_INFO_FILE_PATH""
     wsrep_log_info "Galera co-ords from recovery: $(cat "${XB_GTID_INFO_FILE_PATH}")"
     cat "${XB_GTID_INFO_FILE_PATH}" # output UUID:seqno
     if [[ $ttime -eq 1 ]]; then

@@ -21,9 +21,20 @@
 
 #define WSREP_XID_PREFIX "WSREPXid"
 #define WSREP_XID_PREFIX_LEN 8
+#define WSREP_XID_VERSIONED_PREFIX "WSREPXi"
+#define WSREP_XID_VERSIONED_PREFIX_LEN 7
+#define WSREP_XID_VERSION_OFFSET WSREP_XID_VERSIONED_PREFIX_LEN
+#define WSREP_XID_VERSION_1 'd'
+#define WSREP_XID_VERSION_2 'e'
+#define WSREP_XID_VERSION_3 'f'
+#define WSREP_XID_VERSION_4 'g'
+#define WSREP_XID_VERSION_5 'h'
 #define WSREP_XID_UUID_OFFSET 8
 #define WSREP_XID_SEQNO_OFFSET (WSREP_XID_UUID_OFFSET + sizeof(wsrep_uuid_t))
 #define WSREP_XID_GTRID_LEN (WSREP_XID_SEQNO_OFFSET + sizeof(wsrep_seqno_t))
+#define WSREP_XID_GTRID_LEN_V_1_2 WSREP_XID_GTRID_LEN
+#define WSREP_XID_GTRID_LEN_V_3_4_5 64
+#define WSREP_XID_BQUAL_LEN_V_5 4
 
 void wsrep_xid_init(xid_t *, const wsrep::gtid &);
 int wsrep_is_wsrep_xid(const void *xid);

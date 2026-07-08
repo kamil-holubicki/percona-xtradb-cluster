@@ -604,6 +604,9 @@ void trx_sys_read_wsrep_checkpoint(XID *xid) {
                 XIDDATASIZE);
 
   mtr_commit(&mtr);
+
+  long long xid_seqno = read_wsrep_xid_seqno(xid);
+  fprintf(stderr, "KH: read xid_seqno: %lld\n", xid_seqno);
 }
 #endif /* WITH_WSREP */
 
